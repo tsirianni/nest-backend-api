@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
   getHello(): string {
+    throw new ForbiddenException();
     return 'Hello World!!';
   }
 }
