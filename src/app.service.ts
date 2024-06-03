@@ -1,18 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { CustomLogger } from './common/logger/logger.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly logger: CustomLogger) {}
+  constructor() {}
 
   getHello(): string {
-    const dbError = new Error('Failed to connect');
-
-    this.logger.log(dbError.message, 'contextInfo');
-    this.logger.error(dbError.message, dbError.stack);
-    this.logger.warn(dbError.message, 'contextInfo');
-    this.logger.debug(dbError.message, 'contextInfo', { property: 'value' });
-
+    throw new NotFoundException();
     return 'Hello World!!';
   }
 }
