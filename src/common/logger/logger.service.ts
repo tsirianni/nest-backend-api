@@ -25,42 +25,47 @@ export class CustomLogger extends Logger {
   private formatMessage(
     level: keyof typeof this.colors,
     message: string,
-    context?: string,
     additionalInfo?: any,
   ): string {
-    const timestamp = new Date().toISOString();
+    const timestamp = this.getFormattedDate();
     const pid = process.pid;
-    const contextInfo = context ? ` [${context}]` : '';
-    const additionalInfoStr = additionalInfo
-      ? `\n\n${JSON.stringify(additionalInfo)}\n`
-      : '';
     const levelStr = level.toString(); // Ensuring level is treated as a string
-    let formattedLog = `[${pid}] - ${this.colors[levelStr]}[${levelStr.toUpperCase()}]${this.colors.reset} - [${timestamp}]: ${this.colors[levelStr]}${message}${this.colors.reset}`;
-
-    if (contextInfo) {
-      formattedLog = formattedLog.concat(contextInfo);
-    }
+    let formattedLog = `[App ] ${pid}  - ${timestamp}     ${this.colors[levelStr]}${levelStr.toUpperCase()}${this.colors.reset} ${this.colors[levelStr]}${message}${this.colors.reset}`;
 
     if (additionalInfo) {
-      formattedLog = formattedLog.concat(additionalInfoStr);
+      formattedLog =
+        levelStr === 'error'
+          ? formattedLog.concat(
+              `\n\n${additionalInfo.message}\n${additionalInfo.stack}`,
+            )
+          : formattedLog.concat(`\n\n${JSON.stringify(additionalInfo)}\n`);
     }
 
     return formattedLog;
   }
 
+  private getFormattedDate() {
+    const date = new Date();
+
+    return new Intl.DateTimeFormat('pt-BR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+      timeZone: 'America/Sao_Paulo',
+    }).format(date);
+  }
+
   /**
    * Logs a message with the level 'log' (color: cyan).
    * @param message - The main log message.
-   * @param context - The context of the log message.
    * @param additionalInfo - Additional information to be included in the log message.
    */
-  log(message: string, context?: string, additionalInfo?: any) {
-    const formattedMessage = this.formatMessage(
-      'log',
-      message,
-      context,
-      additionalInfo,
-    );
+  log(message: string, additionalInfo?: any) {
+    const formattedMessage = this.formatMessage('log', message, additionalInfo);
     console.log(formattedMessage);
   }
 
@@ -68,38 +73,22 @@ export class CustomLogger extends Logger {
    * Logs an error message with the level 'error' (color: red). Can include an error trace.
    * @param message - The main log message.
    * @param trace - The stack trace of the error.
-   * @param context - The context of the log message.
    * @param additionalInfo - Additional information to be included in the log message.
    */
-  error(
-    message: string,
-    trace?: string,
-    context?: string,
-    additionalInfo?: any,
-  ) {
-    const formattedMessage = this.formatMessage(
-      'error',
-      message,
-      context,
-      additionalInfo,
-    );
+  error(message: string, error?: any) {
+    const formattedMessage = this.formatMessage('error', message, error);
     console.error(formattedMessage);
-    if (trace) {
-      console.error(`\n${trace}\n`);
-    }
   }
 
   /**
    * Logs a warning message with the level 'warn' (color: yellow).
    * @param message - The main log message.
-   * @param context - The context of the log message.
    * @param additionalInfo - Additional information to be included in the log message.
    */
   warn(message: string, context?: string, additionalInfo?: any) {
     const formattedMessage = this.formatMessage(
       'warn',
       message,
-      context,
       additionalInfo,
     );
     console.warn(formattedMessage);
@@ -108,14 +97,12 @@ export class CustomLogger extends Logger {
   /**
    * Logs a debug message with the level 'debug' (color: green).
    * @param message - The main log message.
-   * @param context - The context of the log message.
    * @param additionalInfo - Additional information to be included in the log message.
    */
   debug(message: string, context?: string, additionalInfo?: any) {
     const formattedMessage = this.formatMessage(
       'debug',
       message,
-      context,
       additionalInfo,
     );
     console.debug(formattedMessage);
