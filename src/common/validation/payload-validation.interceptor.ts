@@ -66,8 +66,6 @@ export class ValidationInterceptor implements NestInterceptor {
 
   validateQuery(query: any, querySchema: ZodObject<any, any>) {
     const result = querySchema.safeParse(query);
-    console.log(query);
-    console.log(result.error);
     if (!result.success) {
       throw new BadRequestException(result.error);
     }
