@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Logger, Injectable } from '@nestjs/common';
 
 /**

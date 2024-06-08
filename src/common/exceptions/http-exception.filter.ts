@@ -32,6 +32,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // Log and return error
     if (!(exception instanceof BadRequestException)) {
+      // eslint-disable-next-line no-console
       console.log(exception);
     }
 

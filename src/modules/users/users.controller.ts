@@ -13,14 +13,13 @@ export class UsersController {
 
   @Post('/:id')
   @UseInterceptors(new ValidationInterceptor(createUserDtoSchema))
-  create(
+  async create(
     @Body() createUserDto: CreateUserBodyDto,
     @Param('id') userId: CreateUserIdDto,
   ) {
     try {
-      return this.usersService.create(createUserDto, userId);
+      return await this.usersService.create(createUserDto, userId);
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
