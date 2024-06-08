@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/errors/http-exception.filter';
+import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
 import { ConfigService } from '@nestjs/config';
 import { EventService } from './common/events/events.service';
 import { InitService } from './init';

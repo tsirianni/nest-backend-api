@@ -5,6 +5,7 @@ import { LoggerModule } from './common/logger/logger.module';
 import { ConfigModule } from '@nestjs/config';
 import { EventService } from './common/events/events.service';
 import { InitService } from './init';
+import { UsersModule } from './modules/users/users.module';
 import configuration from './config';
 
 @Module({
@@ -17,6 +18,7 @@ import configuration from './config';
       load: [configuration],
       isGlobal: true,
     }),
+    UsersModule,
   ],
 })
 export class AppModule {}

@@ -1,0 +1,44 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { ZodError, z as zod } from 'zod';
+import errorMessages from '../validation/error-messages';
+import errorCodes from '../validation/error-codes';
+
+interface validationIssue {
+  code: string;
+  path: (string | number)[];
+  properties: (string | number)[];
+  message: string;
+}
+
+export default class BadRequestException extends HttpException {
+  name: string;
+  validationIssues: validationIssue[] = [];
+
+  constructor(error: ZodError | string) {
+    super(
+      typeof error === 'string' ? error : error.message,
+      HttpStatus.BAD_REQUEST,
+    );
+
+    this.name = 'Bad Request Exception';
+
+    if (typeof error === 'object') {
+      error.issues.forEach((issue: zod.ZodIssue) => {
+        const issueObject: validationIssue = {
+          message: errorMessages[issue.code],
+          path: [],
+          properties: [],
+          code: issue.code,
+        };
+
+        if (issue.code === errorCodes.UNRECOGNIZED_KEYS) {
+          issue.keys.forEach((key) => issueObject['properties'].push(key));
+        } else {
+          issue.path.forEach((value) => issueObject['path'].push(value));
+        }
+
+        this.validationIssues.push(issueObject);
+      });
+    }
+  }
+}

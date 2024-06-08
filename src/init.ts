@@ -21,7 +21,7 @@ export class InitService {
       await this.connectToDatabase();
 
       this.eventService.emitEvent('ready', this.logger);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Initialization failed: ${error.message}`, error.trace);
       process.exit(1);
     }
