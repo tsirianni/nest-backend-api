@@ -3,18 +3,21 @@ import { ZodError, z as zod } from 'zod';
 import errorMessages from '../validation/error-messages';
 import errorCodes from '../validation/error-codes';
 
+type ErrorLocation = 'body' | 'query' | 'params';
+
 interface validationIssue {
   code: string;
   path: (string | number)[];
   properties: (string | number)[];
   message: string;
+  location: ErrorLocation;
 }
 
 export default class BadRequestException extends HttpException {
   name: string;
   validationIssues: validationIssue[] = [];
 
-  constructor(error: ZodError | string) {
+  constructor(error: ZodError | string, location: ErrorLocation) {
     super(
       typeof error === 'string' ? error : error.message,
       HttpStatus.BAD_REQUEST,
@@ -29,6 +32,7 @@ export default class BadRequestException extends HttpException {
           path: [],
           properties: [],
           code: issue.code,
+          location,
         };
 
         if (issue.code === errorCodes.UNRECOGNIZED_KEYS) {

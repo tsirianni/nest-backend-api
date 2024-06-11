@@ -17,16 +17,10 @@ type SchemaContainer = {
 
 @Injectable()
 export class ValidationInterceptor implements NestInterceptor {
-  validationObject;
-  requestObject: Request | undefined;
-
-  constructor(validationObject: SchemaContainer) {
-    this.validationObject = validationObject;
-  }
+  constructor(public validationObject: SchemaContainer) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest<Request>();
-    this.requestObject = request;
     const { body, params, query } = request;
 
     if (Object.keys(body).length && this.validationObject.body) {
@@ -48,7 +42,7 @@ export class ValidationInterceptor implements NestInterceptor {
   validateParams(params: any, paramsSchema: ZodObject<any, any>) {
     const result = paramsSchema.safeParse(params);
     if (!result.success) {
-      throw new BadRequestException(result.error);
+      throw new BadRequestException(result.error, 'params');
     }
 
     return;
@@ -58,7 +52,7 @@ export class ValidationInterceptor implements NestInterceptor {
     const result = bodySchema.safeParse(body);
 
     if (!result.success) {
-      throw new BadRequestException(result.error);
+      throw new BadRequestException(result.error, 'body');
     }
 
     return;
@@ -67,7 +61,7 @@ export class ValidationInterceptor implements NestInterceptor {
   validateQuery(query: any, querySchema: ZodObject<any, any>) {
     const result = querySchema.safeParse(query);
     if (!result.success) {
-      throw new BadRequestException(result.error);
+      throw new BadRequestException(result.error, 'query');
     }
 
     return;

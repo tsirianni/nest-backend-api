@@ -25,6 +25,6 @@ async function bootstrap() {
   // Global Error Handler
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  await initService.init();
+  await initService.init(eventService);
 }
 bootstrap();

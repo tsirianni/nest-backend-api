@@ -1,24 +1,22 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { LoggerModule } from './common/logger/logger.module';
 import { ConfigModule } from '@nestjs/config';
-import { EventService } from './common/events/events.service';
+import { EventsModule } from './common/events/events.module';
 import { InitService } from './init';
 import { UsersModule } from './modules/users/users.module';
 import configuration from './config';
 
 @Module({
   controllers: [AppController],
-  providers: [AppService, EventService, InitService],
-  exports: [EventService],
+  providers: [AppService, InitService],
   imports: [
-    LoggerModule,
     ConfigModule.forRoot({
       load: [configuration],
       isGlobal: true,
     }),
     UsersModule,
+    EventsModule,
   ],
 })
 export class AppModule {}

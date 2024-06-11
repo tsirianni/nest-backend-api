@@ -9,15 +9,15 @@ export class UsersService {
   async create(createUserDto: CreateUserBodyDto, userId?: CreateUserIdDto) {
     // Database Call
 
-    try {
-      await this.emailService.sendMail({
-        to: 'email@gmail.com',
-        subject: 'A new user has been created',
-        html: `<h1>Hello World</h1>`,
-      });
-    } catch (error) {
-      throw error;
-    }
+    // try {
+    //   await this.emailService.sendMail({
+    //     to: 'email@gmail.com',
+    //     subject: 'A new user has been created',
+    //     html: `<h1>Hello World</h1>`,
+    //   });
+    // } catch (error) {
+    //   throw error;
+    // }
 
     return `User created: ${createUserDto} with ID ${userId}`;
   }
