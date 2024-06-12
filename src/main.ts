@@ -4,27 +4,27 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
 import { ConfigService } from '@nestjs/config';
 import { EventService } from './common/events/events.service';
-import { InitService } from './init';
-import enums from './enums';
+import { InitService } from './init/init.service';
+import { EnvSchema } from './config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(helmet());
 
   // Get Services
-  const configService = app.get(ConfigService);
+  const configService = app.get<ConfigService<EnvSchema, true>>(ConfigService);
   const eventService = app.get(EventService);
   const initService = app.get(InitService);
 
   eventService.onEvent('ready', async (logger) => {
-    const PORT = configService.get(enums.CONFIG.API_PORT);
-    await app.listen(PORT);
-    logger.log(`HTTP server listening on port ${PORT}`);
+    const port = configService.get('API_PORT', { infer: true });
+    await app.listen(port);
+    logger.log(`HTTP server listening on port ${port}`);
   });
 
   // Global Error Handler
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  await initService.init(eventService);
+  await initService.init();
 }
 bootstrap();

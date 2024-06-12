@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserType {
+  id        Int       @id @db.SmallInt
+  name      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  deletedAt DateTime?
+
+  // Relation fields
+  User User[]
+
+  @@map("user_type")
+}
+
+model User {
+  id         String    @id @default(uuid())
+  name       String
+  email      String    @unique
+  password   String
+  userTypeId Int       @map("user_type_id") @db.SmallInt
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+  deletedAt  DateTime?
+
+  // Relation fields
+  userType UserType @relation(fields: [userTypeId], references: [id])
+
+  @@map("user")
+}

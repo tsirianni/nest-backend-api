@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    container_name: pg-database
+    image: postgres:14
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+      - PGDATA=/data/postgres
+    volumes:
+      - ./data/pg:/data/postgres

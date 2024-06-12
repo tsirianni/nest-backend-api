@@ -1,8 +1,8 @@
 import { z as zod } from 'zod';
 import enums from 'src/enums';
 
-type profileType = (typeof enums.PROFILE_TYPE)[keyof typeof enums.PROFILE_TYPE];
-const profileTypeEnum = [...Object.values(enums.PROFILE_TYPE)] as [
+type profileType = (typeof enums.USER_TYPE)[keyof typeof enums.USER_TYPE];
+const profileTypeEnum = [...Object.values(enums.USER_TYPE)] as [
   string,
   ...string[],
 ];
