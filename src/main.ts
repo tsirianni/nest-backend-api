@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 
-import { HttpExceptionFilter } from './common/exceptions/filters/HttpException.filter';
+import * as exceptionFilters from './common/exceptions/filters';
 import { EventService } from './common/events/events.service';
 import { InitService } from './init/init.service';
 import { AppModule } from './app.module';
@@ -23,8 +23,12 @@ async function bootstrap() {
     logger.log(`HTTP server listening on port ${port}`);
   });
 
-  // Global Error Handler
-  app.useGlobalFilters(new HttpExceptionFilter());
+  // Global Exception Handlers
+  app.useGlobalFilters(
+    new exceptionFilters.HttpExceptionFilter(),
+    new exceptionFilters.UnprocessableEntityExceptionFilter(),
+    new exceptionFilters.BadRequestExceptionFilter(),
+  );
 
   await initService.init();
 }

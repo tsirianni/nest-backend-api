@@ -4,39 +4,30 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 
-import DatabaseException from '../Database.exception';
+import BadRequestException from '../BadRequest.exception';
 
 interface FormattedException {
-  message?: string;
-  timestamp?: string;
+  validationIssues: object[];
   statusCode?: HttpStatus;
+  timestamp?: string;
+  message?: string;
 }
 
-@Catch(HttpException, DatabaseException)
-export default class HttpExceptionFilter implements ExceptionFilter {
+@Catch(BadRequestException)
+export default class BadRequestExceptionFilter implements ExceptionFilter {
   formatException(exception: any, ctx: HttpArgumentsHost) {
     const response = ctx.getResponse<Response>();
-    const status = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
+    const status = exception.getStatus();
 
     const formattedException: FormattedException = {
       statusCode: status,
       timestamp: new Date().toISOString(),
+      validationIssues: [...exception.validationIssues],
     };
-
-    if (exception.message) {
-      formattedException.message = exception.message;
-    }
-
-    // Log and return error
-    if (!(exception instanceof UnauthorizedException)) {
-      // eslint-disable-next-line no-console
-      console.log(exception);
-    }
 
     return response.status(status).json(formattedException);
   }
