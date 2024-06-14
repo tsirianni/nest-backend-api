@@ -1,19 +1,18 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvSchema } from 'src/config';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { DateTime } from 'luxon';
 
-import { PrismaService } from 'src/common/database/prisma/prisma.service';
+import { handleDatabaseCall } from 'src/common/utils/handle-database-call.wrapper';
 import { default as emailTypes } from '../../common/email/templates/enums';
+import { PrismaService } from 'src/common/database/prisma/prisma.service';
+import { UnprocessableEntityException } from 'src/common/exceptions';
 import { EmailService } from 'src/common/email/email.service';
-import { CreateUserDto } from './dto/create.dto';
+import errorTypes from 'src/common/exceptions/error-types';
 import { ValidateSignUp } from './dto/validate-sign-up';
+import { CreateUserDto } from './dto/create.dto';
 
 @Injectable()
 export class UsersService {
@@ -48,39 +47,37 @@ export class UsersService {
     );
 
     const hashedPassword = await bcrypt.hash(user.password, bcryptRounds);
+    const expiresAt = DateTime.now().plus({ minutes: 5 }).toJSDate();
     const signUpVerificationCode = crypto.randomInt(0, 1000000);
     const hashedSignUpVerificationCode = await bcrypt.hash(
       String(signUpVerificationCode),
       bcryptRounds,
     );
-    const expiresAt = DateTime.now().plus({ minutes: 5 }).toJSDate();
 
-    // TODO create DatabaseError class adn DB call Wrapper (try/catch)
-
-    let newUser;
-    try {
-      newUser = await this.database.user.create({
+    const newUser = await handleDatabaseCall(
+      this.database.user.create({
         data: {
           name: user.name,
           email: user.email,
           userTypeId: user.profileType,
           password: hashedPassword,
         },
-      });
+      }),
+    );
 
-      await this.database.signUpVerificationCode.create({
-        data: {
-          userId: newUser.id,
-          code: hashedSignUpVerificationCode,
-          email: user.email,
-          expiresAt,
-        },
-      });
-    } catch (error: any) {
-      throw new Error(error.message);
+    if (newUser) {
+      await handleDatabaseCall(
+        this.database.signUpVerificationCode.create({
+          data: {
+            userId: newUser.id,
+            code: hashedSignUpVerificationCode,
+            email: user.email,
+            expiresAt,
+          },
+        }),
+      );
     }
 
-    // TODO send email
     try {
       await this.emailService.sendMail({
         to: user.email,
@@ -91,6 +88,7 @@ export class UsersService {
         },
       });
     } catch (error: any) {
+      // TODO Put a better error here
       throw new Error(error.message);
     }
 
@@ -106,22 +104,18 @@ export class UsersService {
       throw new Error('code is not defined');
     }
 
-    let signUpVerificationCode;
-    try {
-      signUpVerificationCode =
-        await this.database.signUpVerificationCode.findFirst({
-          where: { email: signUpInfo.email },
-          include: { user: { select: { id: true } } },
-        });
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
+    const signUpVerificationCode = await handleDatabaseCall(
+      this.database.signUpVerificationCode.findFirst({
+        where: { email: signUpInfo.email },
+        include: { user: { select: { id: true } } },
+      }),
+    );
 
     if (!signUpVerificationCode) {
-      // TODO create custom UnprocessableEntityError class
-      throw new UnprocessableEntityException(
-        'The provided verification code is either invalid or expired',
-      );
+      throw new UnprocessableEntityException({
+        message: 'The provided verification code is either invalid or expired',
+        type: errorTypes.USERS.SIGN_UP_VALIDATION_CODE.CODE_INVALID_OR_EXPIRED,
+      });
     }
 
     const isProvidedCodeCorrect = await bcrypt.compare(
@@ -130,23 +124,26 @@ export class UsersService {
     );
 
     if (isProvidedCodeCorrect) {
-      try {
-        await this.database.user.update({
+      await handleDatabaseCall(
+        this.database.user.update({
           data: { verified: true },
           where: { id: signUpVerificationCode.user.id },
-        });
+        }),
+      );
 
-        await this.database.signUpVerificationCode.delete({
+      await handleDatabaseCall(
+        this.database.signUpVerificationCode.delete({
           where: { id: signUpVerificationCode.id },
-        });
-      } catch (error: any) {
-        throw new Error(error.message);
-      }
+        }),
+      );
     }
   }
 
   async findOneById(userId: string) {
-    const user = await this.database.user.findUnique({ where: { id: userId } });
+    const user = handleDatabaseCall(
+      this.database.user.findUnique({ where: { id: userId } }),
+    );
+
     if (!user) {
       throw new NotFoundException();
     }
@@ -154,9 +151,11 @@ export class UsersService {
 
   // Used by Auth
   async findOneByEmail(email: string) {
-    const user = await this.database.user.findUnique({
-      where: { email },
-    });
+    const user = await handleDatabaseCall(
+      this.database.user.findUnique({
+        where: { email },
+      }),
+    );
 
     return user ? user : null;
   }

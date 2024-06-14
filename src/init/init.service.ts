@@ -1,7 +1,7 @@
-// src/init.service.ts
-import { Injectable, Logger } from '@nestjs/common';
-import { EventService } from '../common/events/events.service';
+import { handleDatabaseCall } from 'src/common/utils/handle-database-call.wrapper';
 import { PrismaService } from 'src/common/database/prisma/prisma.service';
+import { EventService } from '../common/events/events.service';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class InitService {
@@ -18,13 +18,17 @@ export class InitService {
 
       this.events.emitEvent('ready', this.logger);
     } catch (error: any) {
-      this.logger.error(`Initialization failed: ${error.message}`, error.trace);
+      this.logger.error(
+        `Initialization failed: ${error.message}`,
+        error.stack,
+        `code: ${error?.code || error?.statusCode}`,
+      );
       process.exit(1);
     }
   }
 
   private async connectToDatabase() {
-    await this.database.$connect();
+    await handleDatabaseCall(this.database.$connect());
     this.logger.log('Connection to database successful');
   }
 }

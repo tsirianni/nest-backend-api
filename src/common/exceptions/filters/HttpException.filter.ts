@@ -8,15 +8,19 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
-import BadRequestException from './bad-request.exception';
+import BadRequestException from '../BadRequest.exception';
+import DatabaseException from '../Database.exception';
+import { UnprocessableEntityException } from '../UnprocessableEntity.exception';
 
 interface FormattedException {
+  message?: string;
   timestamp?: string;
   statusCode?: HttpStatus;
   validationIssues?: object[];
+  type?: string;
 }
 
-@Catch(HttpException)
+@Catch(HttpException, DatabaseException, UnprocessableEntityException)
 export class HttpExceptionFilter implements ExceptionFilter {
   formatException(exception: any, ctx: HttpArgumentsHost) {
     const response = ctx.getResponse<Response>();
@@ -31,11 +35,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
       formattedException.validationIssues = [...exception.validationIssues];
     }
 
+    if (exception.type) {
+      formattedException.message = exception.message;
+      formattedException.type = exception.type;
+    }
+
     // Log and return error
     if (
       !(
         exception instanceof BadRequestException ||
-        exception instanceof UnauthorizedException
+        exception instanceof UnauthorizedException ||
+        UnprocessableEntityException
       )
     ) {
       // eslint-disable-next-line no-console

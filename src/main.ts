@@ -1,10 +1,11 @@
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
-import { ConfigService } from '@nestjs/config';
+
+import { HttpExceptionFilter } from './common/exceptions/filters/HttpException.filter';
 import { EventService } from './common/events/events.service';
 import { InitService } from './init/init.service';
+import { AppModule } from './app.module';
 import { EnvSchema } from './config';
 
 async function bootstrap() {
