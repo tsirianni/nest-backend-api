@@ -11,7 +11,10 @@ import {
 import { UsersService } from './users.service';
 import { createUserDtoSchema, CreateUserDto } from './dto/create.dto';
 import { ValidationInterceptor } from 'src/common/validation/payload-validation.interceptor';
-import { FindOneUserParams, findOneUserSchema } from './dto/find-one.dto';
+import {
+  FindOneUserById,
+  findOneUserByIdSchema,
+} from './dto/find-one-by-id.dto';
 import { ValidateSignUp, validateSignUpSchema } from './dto/validate-sign-up';
 
 @Controller('users')
@@ -34,9 +37,9 @@ export class UsersController {
 
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
-  @UseInterceptors(new ValidationInterceptor(findOneUserSchema))
-  async findOne(@Param('id') params: FindOneUserParams): Promise<any> {
+  @UseInterceptors(new ValidationInterceptor(findOneUserByIdSchema))
+  async findOne(@Param('id') params: FindOneUserById): Promise<any> {
     // TODO update return with User entity
-    return this.usersService.findOneById(params.id);
+    return this.usersService.findOneById({ id: params.id });
   }
 }

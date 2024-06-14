@@ -13,7 +13,7 @@ export class AuthService {
   ) {}
 
   async signIn({ username, password }: SignIn) {
-    const user = await this.usersService.findOneByEmail(username);
+    const user = await this.usersService.findOneByEmail({ email: username });
 
     if (!user) {
       throw new UnauthorizedException('Invalid Credentials');

@@ -4,7 +4,7 @@ import DatabaseException, {
 
 type ErrorHandler = (error: PrismaException) => void;
 
-export async function handleDatabaseCall<T>(
+export default async function handleDatabaseCall<T>(
   dbCall: Promise<T>,
   errorHandler?: ErrorHandler,
 ) {

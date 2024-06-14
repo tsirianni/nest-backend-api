@@ -5,14 +5,19 @@ import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { DateTime } from 'luxon';
 
-import { handleDatabaseCall } from 'src/common/utils/handle-database-call.wrapper';
 import { default as emailTypes } from '../../common/email/templates/enums';
 import { PrismaService } from 'src/common/database/prisma/prisma.service';
-import { UnprocessableEntityException } from 'src/common/exceptions';
+import {
+  BaseException,
+  UnprocessableEntityException,
+} from 'src/common/exceptions';
 import { EmailService } from 'src/common/email/email.service';
 import errorTypes from 'src/common/exceptions/error-types';
 import { ValidateSignUp } from './dto/validate-sign-up';
+import { handleDatabaseCall } from 'src/common/utils';
 import { CreateUserDto } from './dto/create.dto';
+import { FindOneUserById } from './dto/find-one-by-id.dto';
+import { FindOneUserByEmail } from './dto/find-one-by-email.dto';
 
 @Injectable()
 export class UsersService {
@@ -23,23 +28,6 @@ export class UsersService {
   ) {}
 
   async create(user: CreateUserDto) {
-    // TODO create utils for validation of arguments
-    if (!user.name) {
-      throw new Error('name is not defined');
-    }
-
-    if (!user.email) {
-      throw new Error('email is not defined');
-    }
-
-    if (!user.password) {
-      throw new Error('password is not defined');
-    }
-
-    if (!user.profileType) {
-      throw new Error('profileType is not defined');
-    }
-
     // TODO verify if there is already an existing valid code before attempting again
 
     const bcryptRounds = Number(
@@ -88,22 +76,13 @@ export class UsersService {
         },
       });
     } catch (error: any) {
-      // TODO Put a better error here
-      throw new Error(error.message);
+      throw new BaseException(error.message);
     }
 
     return;
   }
 
   async validateSignUp(signUpInfo: ValidateSignUp) {
-    if (!signUpInfo.email) {
-      throw new Error('email is not defined');
-    }
-
-    if (!signUpInfo.code) {
-      throw new Error('code is not defined');
-    }
-
     const signUpVerificationCode = await handleDatabaseCall(
       this.database.signUpVerificationCode.findFirst({
         where: { email: signUpInfo.email },
@@ -139,9 +118,9 @@ export class UsersService {
     }
   }
 
-  async findOneById(userId: string) {
+  async findOneById(payload: FindOneUserById) {
     const user = handleDatabaseCall(
-      this.database.user.findUnique({ where: { id: userId } }),
+      this.database.user.findUnique({ where: { id: payload.id } }),
     );
 
     if (!user) {
@@ -150,10 +129,10 @@ export class UsersService {
   }
 
   // Used by Auth
-  async findOneByEmail(email: string) {
+  async findOneByEmail(payload: FindOneUserByEmail) {
     const user = await handleDatabaseCall(
       this.database.user.findUnique({
-        where: { email },
+        where: { email: payload.email },
       }),
     );
 

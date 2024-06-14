@@ -1,6 +1,6 @@
-import { handleDatabaseCall } from 'src/common/utils/handle-database-call.wrapper';
 import { PrismaService } from 'src/common/database/prisma/prisma.service';
 import { EventService } from '../common/events/events.service';
+import { handleDatabaseCall } from 'src/common/utils';
 import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
