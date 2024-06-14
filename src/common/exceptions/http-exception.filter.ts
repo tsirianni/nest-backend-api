@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
@@ -31,7 +32,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     // Log and return error
-    if (!(exception instanceof BadRequestException)) {
+    if (
+      !(
+        exception instanceof BadRequestException ||
+        exception instanceof UnauthorizedException
+      )
+    ) {
       // eslint-disable-next-line no-console
       console.log(exception);
     }

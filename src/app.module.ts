@@ -6,9 +6,11 @@ import { EventsModule } from './common/events/events.module';
 import { UsersModule } from './modules/users/users.module';
 import { InitModule } from './init/init.module';
 import { envSchema } from './config';
+import { AuthModule } from './modules/auth/auth.module';
+import { AuthController } from './modules/auth/auth.controller';
 
 @Module({
-  controllers: [AppController],
+  controllers: [AppController, AuthController],
   providers: [AppService],
   imports: [
     ConfigModule.forRoot({
@@ -27,6 +29,7 @@ import { envSchema } from './config';
     UsersModule,
     EventsModule,
     InitModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

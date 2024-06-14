@@ -6,7 +6,7 @@ export default {
   },
 
   USER_TYPE: {
-    TECHNICAL: 'Technical',
-    NON_TECHNICAL: 'Non-technical',
+    TECHNICAL: 1,
+    NON_TECHNICAL: 2,
   },
 };

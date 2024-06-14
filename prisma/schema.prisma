@@ -12,7 +12,7 @@ model UserType {
   name      String
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
-  deletedAt DateTime?
+  deletedAt DateTime? @map("deleted_at")
 
   // Relation fields
   User User[]
@@ -22,16 +22,34 @@ model UserType {
 
 model User {
   id         String    @id @default(uuid())
-  name       String
-  email      String    @unique
-  password   String
+  name       String    @db.VarChar(255)
+  email      String    @unique @db.VarChar(255)
+  password   String    @db.Char(60)
   userTypeId Int       @map("user_type_id") @db.SmallInt
+  verified   Boolean   @default(false)
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  deletedAt  DateTime?
+  deletedAt  DateTime? @map("deleted_at")
 
   // Relation fields
-  userType UserType @relation(fields: [userTypeId], references: [id])
+  user_type_id           UserType                 @relation(fields: [userTypeId], references: [id])
+  SignUpVerificationCode SignUpVerificationCode[]
 
   @@map("user")
+}
+
+model SignUpVerificationCode {
+  id        String    @id @default(uuid())
+  code      String    @db.Char(60)
+  email     String    @db.VarChar(255)
+  userId    String    @map("user_id")
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relation fields
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("sign_up_verification_code")
 }

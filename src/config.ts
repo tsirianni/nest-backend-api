@@ -18,6 +18,13 @@ export const envSchema = zod.object({
   DATABASE_USER: zod.string(),
   DATABASE_PASSWORD: zod.coerce.number(),
   DATABASE_NAME: zod.string(),
+
+  // JWT
+  JWT_PUBLIC_KEY: zod.string(),
+  JWT_PRIVATE_KEY: zod.string(),
+
+  // BCRYPT
+  BCRYPT_ROUNDS: zod.coerce.number().optional().default(8),
 });
 
 export type EnvSchema = zod.infer<typeof envSchema>;
