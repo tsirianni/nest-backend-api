@@ -2,16 +2,17 @@
 import footer from './templates/common/footer';
 import header from './templates/common/header';
 import * as templates from './templates';
-import { default as EmailTypes } from './templates/enums';
+import { AllTypes } from './templates/enums';
 
 export default function assembleTemplate(
-  templateId: number,
+  type: AllTypes,
   templateArgs: any,
 ): { subject: string; html: string } {
   let subject;
   let templateBody;
-  switch (templateId) {
-    case EmailTypes.SIGN_UP_CODE:
+
+  switch (type) {
+    case 'SIGN_UP_CODE':
       subject = 'Seu código de verificação - Financial Planner App';
       templateBody = templates.signUpCode(templateArgs);
       break;

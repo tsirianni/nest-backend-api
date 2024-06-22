@@ -1,4 +1,23 @@
-// Enum of template IDs
-export default Object.seal({
-  SIGN_UP_CODE: 1,
-});
+type SignUpCode = {
+  type: 'SIGN_UP_CODE';
+  templateArgs: {
+    name: string;
+    verificationCode: number;
+  };
+};
+
+type SignUpCodeTwo = {
+  type: 'SIGN_UP_CODE_TWO';
+  templateArgs: {
+    name2: string;
+    verificationCode2: number;
+  };
+};
+
+type EmailTypes = SignUpCode | SignUpCodeTwo;
+
+export type AllTypes = EmailTypes['type'];
+
+export type TypeToTemplateArgsMap = {
+  [E in EmailTypes as E['type']]: E['templateArgs'];
+};

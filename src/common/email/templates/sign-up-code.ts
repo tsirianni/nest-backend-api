@@ -1,9 +1,6 @@
-interface SignUpTemplateArgs {
-  name: string;
-  verificationCode: string;
-}
+import { TypeToTemplateArgsMap } from '../templates/enums';
 
-export default (args: SignUpTemplateArgs) => {
+export default (args: TypeToTemplateArgsMap['SIGN_UP_CODE']) => {
   return `
   <div class="middle-section" style="padding: 20px">
     <p>Olá, ${args.name}</p>

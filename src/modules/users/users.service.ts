@@ -1,11 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
 import { EnvSchema } from 'src/config';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { DateTime } from 'luxon';
 
-import { default as emailTypes } from '../../common/email/templates/enums';
 import { PrismaService } from 'src/common/database/prisma/prisma.service';
 import {
   BaseException,
@@ -18,6 +22,11 @@ import { handleDatabaseCall } from 'src/common/utils';
 import { CreateUserDto } from './dto/create.dto';
 import { FindOneUserById } from './dto/find-one-by-id.dto';
 import { FindOneUserByEmail } from './dto/find-one-by-email.dto';
+import DatabaseException, {
+  PrismaException,
+} from 'src/common/exceptions/Database.exception';
+
+import errorCodes from 'src/common/database/prisma/error-codes';
 
 @Injectable()
 export class UsersService {
@@ -28,7 +37,26 @@ export class UsersService {
   ) {}
 
   async create(user: CreateUserDto) {
-    // TODO verify if there is already an existing valid code before attempting again
+    const existingVerificationCodes = await handleDatabaseCall(
+      this.database.signUpVerificationCode.findMany({
+        where: {
+          email: user.email,
+        },
+      }),
+    );
+
+    const currentlyValidVerificationCode = existingVerificationCodes?.find(
+      (verificationCode) =>
+        DateTime.fromJSDate(verificationCode.expiresAt) > DateTime.now(),
+    );
+
+    if (currentlyValidVerificationCode) {
+      throw new UnprocessableEntityException({
+        message:
+          'There is still a non-expired sign-up code attached to this email. Please verify your account with it',
+        type: errorTypes.USERS.CREATE.SIGN_UP_VALIDATION_CODE_STILL_ACTIVE,
+      });
+    }
 
     const bcryptRounds = Number(
       this.config.get('BCRYPT_ROUNDS', { infer: true }),
@@ -42,22 +70,43 @@ export class UsersService {
       bcryptRounds,
     );
 
-    const newUser = await handleDatabaseCall(
-      this.database.user.create({
-        data: {
-          name: user.name,
-          email: user.email,
-          userTypeId: user.profileType,
-          password: hashedPassword,
-        },
-      }),
-    );
+    let userId = existingVerificationCodes?.length
+      ? existingVerificationCodes[0].userId
+      : undefined;
 
-    if (newUser) {
+    if (!userId) {
+      const newUser = await handleDatabaseCall(
+        this.database.user.create({
+          data: {
+            name: user.name,
+            email: user.email,
+            userTypeId: user.profileType,
+            password: hashedPassword,
+          },
+        }),
+        function (error: PrismaException) {
+          if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === errorCodes.UNIQUE_CONSTRAINT_FAILED) {
+              throw new ConflictException(
+                'There is already an user registered with the provided email address',
+              );
+            }
+          }
+
+          throw new DatabaseException(error);
+        },
+      );
+
+      if (newUser) {
+        userId = newUser.id;
+      }
+    }
+
+    if (userId) {
       await handleDatabaseCall(
         this.database.signUpVerificationCode.create({
           data: {
-            userId: newUser.id,
+            userId,
             code: hashedSignUpVerificationCode,
             email: user.email,
             expiresAt,
@@ -67,13 +116,9 @@ export class UsersService {
     }
 
     try {
-      await this.emailService.sendMail({
-        to: user.email,
-        templateId: emailTypes.SIGN_UP_CODE,
-        templateArgs: {
-          name: user.name,
-          verificationCode: signUpVerificationCode,
-        },
+      await this.emailService.sendMail(user.email, 'SIGN_UP_CODE', {
+        name: user.name,
+        verificationCode: signUpVerificationCode,
       });
     } catch (error: any) {
       throw new BaseException(error.message);
@@ -85,7 +130,10 @@ export class UsersService {
   async validateSignUp(signUpInfo: ValidateSignUp) {
     const signUpVerificationCode = await handleDatabaseCall(
       this.database.signUpVerificationCode.findFirst({
-        where: { email: signUpInfo.email },
+        where: {
+          email: signUpInfo.email,
+          expiresAt: { gte: DateTime.now().toJSDate() },
+        },
         include: { user: { select: { id: true } } },
       }),
     );
@@ -111,8 +159,9 @@ export class UsersService {
       );
 
       await handleDatabaseCall(
-        this.database.signUpVerificationCode.delete({
-          where: { id: signUpVerificationCode.id },
+        // Delete current and possibly expired verification codes
+        this.database.signUpVerificationCode.deleteMany({
+          where: { email: signUpInfo.email },
         }),
       );
     }
