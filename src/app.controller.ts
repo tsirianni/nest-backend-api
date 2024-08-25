@@ -1,12 +1,15 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { RouteDoc } from './common/docs';
+import { healthCheck } from './docs';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('health')
+  @RouteDoc(healthCheck)
+  healthCheck(): string {
+    return this.appService.healthCheck();
   }
 }

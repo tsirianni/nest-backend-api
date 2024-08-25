@@ -29,7 +29,7 @@ export default class HttpExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
     };
 
-    if (exception.message) {
+    if (exception.message && status !== HttpStatus.INTERNAL_SERVER_ERROR) {
       formattedException.message = exception.message;
     }
 

@@ -168,13 +168,24 @@ export class UsersService {
   }
 
   async findOneById(payload: FindOneUserById) {
-    const user = handleDatabaseCall(
-      this.database.user.findUnique({ where: { id: payload.id } }),
+    const desiredParameters = ['name', 'email', 'userTypeId'];
+    const selectObject: Record<string, boolean> = {};
+    desiredParameters.forEach((param) => {
+      selectObject[param] = true;
+    });
+
+    const user = await handleDatabaseCall(
+      this.database.user.findUnique({
+        where: { id: payload.id, verified: true },
+        select: selectObject,
+      }),
     );
 
     if (!user) {
       throw new NotFoundException();
     }
+
+    return user;
   }
 
   // Used by Auth
