@@ -1,3 +1,4 @@
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
@@ -22,6 +23,15 @@ async function bootstrap() {
     await app.listen(port);
     logger.log(`HTTP server listening on port ${port}`);
   });
+
+  // Docs
+  const config = new DocumentBuilder()
+    .setTitle('Financial Planner API')
+    .setDescription('The financial planner API description')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   // Global Exception Handlers
   app.useGlobalFilters(
