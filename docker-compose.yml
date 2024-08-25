@@ -13,3 +13,9 @@ services:
       - PGDATA=/data/postgres
     volumes:
       - ./data/pg:/data/postgres
+
+  dbeaver-server:
+    container_name: dbeaver-server
+    image: dbeaver/cloudbeaver
+    ports:
+      - 7777:8978
