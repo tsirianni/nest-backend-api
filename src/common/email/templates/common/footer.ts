@@ -1,7 +1,0 @@
-export default `
-<div
-  class="footer"
-  style="background-color: #f2f2f2; padding: 20px; text-align: center">
-  <p>&copy; Sem copyright aqui, é um projeto open-source :)</p>
-</div>
-`;

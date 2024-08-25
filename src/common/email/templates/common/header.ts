@@ -1,7 +1,0 @@
-export default `
-  <div
-    class="header"
-    style="background-color: #f2f2f2; padding: 20px; text-align: center">
-    <h1>Financial Planner App</h1>
-  </div>
-`;
