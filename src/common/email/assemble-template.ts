@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-types */
-import footer from './templates/common/footer';
-import header from './templates/common/header';
 import * as templates from './templates';
 import { AllTypes } from './templates/enums';
+import { getHtmlString } from './templates/utils';
 
 export default function assembleTemplate(
   type: AllTypes,
@@ -23,11 +21,11 @@ export default function assembleTemplate(
 
   const wholeTemplate = `
   <div style="display: block; width: 500px;">
-      ${header}
+      ${getHtmlString('header.html')}
 
       ${templateBody}
 
-      ${footer}
+      ${getHtmlString('footer.html')}
     </div>
     `;
 
