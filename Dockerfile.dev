@@ -6,8 +6,10 @@ COPY package*.json .
 
 RUN npm install
 
-COPY . .
+COPY --chown=node:node . .
 
 ENTRYPOINT [ "/bin/sh", "docker-entrypoint.sh" ]
 
-CMD [ "node", "dist/main" ]
+USER node
+
+CMD ["npm", "run", "start:debug"]
