@@ -1,8 +1,7 @@
 version: '3.8'
 
 services:
-  postgres-db:
-    container_name: pg-database
+  pg-database:
     image: postgres:14
     ports:
       - 5432:5432
@@ -16,6 +15,20 @@ services:
 
   dbeaver-server:
     container_name: dbeaver-server
+    depends_on:
+      - pg-database
     image: dbeaver/cloudbeaver
     ports:
       - 7777:8978
+
+  api:
+    depends_on:
+      - pg-database
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 4000:4000
+    env_file:
+      - .env
