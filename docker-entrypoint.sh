@@ -1,5 +1,6 @@
-npx prisma migrate dev
+#!/bin/sh
 
+npx prisma migrate dev
 npx prisma generate
 
 exec "$@"
