@@ -8,7 +8,7 @@ RUN npm install
 
 COPY --chown=node:node . .
 
-ENTRYPOINT [ "/bin/sh", "docker-entrypoint.sh" ]
+ENTRYPOINT ["/bin/sh", "docker-entrypoint.sh" ]
 
 USER node
 
