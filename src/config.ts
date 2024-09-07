@@ -4,6 +4,7 @@ export const envSchema = zod.object({
   NODE_ENV: zod.string(),
   API_DOMAIN: zod.string(),
   API_PORT: zod.coerce.number().optional().default(4000),
+  ALLOWED_ORIGINS: zod.string(),
 
   // SMTP Config
   SMTP_HOST: zod.string(),

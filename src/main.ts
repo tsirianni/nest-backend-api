@@ -11,13 +11,17 @@ import { EnvSchema } from './config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableShutdownHooks();
-  app.use(helmet());
 
   // Get Services
   const configService = app.get<ConfigService<EnvSchema, true>>(ConfigService);
   const eventService = app.get(EventService);
   const initService = app.get(InitService);
+
+  app.enableShutdownHooks();
+  app.enableCors({
+    origin: configService.get('ALLOWED_ORIGINS'),
+  });
+  app.use(helmet());
 
   eventService.onEvent('ready', async (logger) => {
     const port = configService.get('API_PORT', { infer: true });
@@ -27,8 +31,8 @@ async function bootstrap() {
 
   // Docs
   const config = new DocumentBuilder()
-    .setTitle('Financial Planner API')
-    .setDescription('The financial planner API description')
+    .setTitle('Nestjs backend API')
+    .setDescription('The Nestjs backend API description')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
