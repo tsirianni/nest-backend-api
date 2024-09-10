@@ -1,5 +1,6 @@
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import * as cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 
@@ -18,10 +19,11 @@ async function bootstrap() {
   const initService = app.get(InitService);
 
   app.enableShutdownHooks();
+  app.use(cookieParser());
+  app.use(helmet());
   app.enableCors({
     origin: configService.get('ALLOWED_ORIGINS'),
   });
-  app.use(helmet());
 
   eventService.onEvent('ready', async (logger) => {
     const port = configService.get('API_PORT', { infer: true });
