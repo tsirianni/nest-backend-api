@@ -26,18 +26,106 @@ export const login: ApiDocumentationOptions = {
   responses: [
     {
       status: HttpStatus.OK,
-      description: 'Login Operation Successful',
+      description:
+        'Login operation was successful and the cookies have been returned',
+      headers: {
+        'Set-Cookie': {
+          description: 'JWT access_token cookie',
+          schema: {
+            type: 'string',
+          },
+        },
+        'Set-Cookie-Refresh': {
+          description: 'JWT refresh_token cookie',
+          schema: {
+            type: 'string',
+          },
+        },
+      },
       schema: {
         type: 'object',
         properties: {
-          access_token: {
+          message: {
             type: 'string',
-            example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5Y...',
+            example: 'success',
           },
         },
       },
     },
     { ...errorTemplates[HttpStatus.UNAUTHORIZED] },
+    { ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR] },
+  ],
+};
+
+export const refresh: ApiDocumentationOptions = {
+  tag: ['Auth'],
+  summary: 'Endpoint to refresh tokens',
+  description:
+    'Endpoint allows a user to get new tokens once the access_token has expired',
+  headers: [
+    {
+      name: 'Cookie',
+      description: 'The cookie required to access the route',
+      required: true,
+      schema: {
+        type: 'string',
+        example: 'refresh_token=TOKEN',
+      },
+    },
+  ],
+  responses: [
+    {
+      status: HttpStatus.OK,
+      description:
+        'Refresh operation was successful and the new cookies have been returned',
+      headers: {
+        'Set-Cookie': {
+          description: 'JWT access_token cookie',
+          schema: {
+            type: 'string',
+          },
+        },
+        'Set-Cookie-Refresh': {
+          description: 'JWT refresh_token cookie',
+          schema: {
+            type: 'string',
+          },
+        },
+      },
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: 'success',
+          },
+        },
+      },
+    },
+    { ...errorTemplates[HttpStatus.UNAUTHORIZED] },
+    { ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR] },
+  ],
+};
+
+export const logout: ApiDocumentationOptions = {
+  tag: ['Auth'],
+  summary: 'Endpoint to clear tokens',
+  description: 'Endpoint to clear tokens, effectively logging the user out',
+  responses: [
+    {
+      status: HttpStatus.OK,
+      description:
+        'Logout operation was successful and the cookies have been cleared',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: 'Logged out successfully',
+          },
+        },
+      },
+    },
     { ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR] },
   ],
 };

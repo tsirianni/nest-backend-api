@@ -9,6 +9,8 @@ import {
   ApiBodyOptions,
   ApiParamOptions,
   ApiQueryOptions,
+  ApiHeader,
+  ApiHeaderOptions,
 } from '@nestjs/swagger';
 
 export type ApiDocumentationOptions = {
@@ -19,6 +21,7 @@ export type ApiDocumentationOptions = {
   responses?: Array<ApiResponseOptions>;
   params?: Array<ApiParamOptions>;
   queries?: Array<ApiQueryOptions>;
+  headers?: Array<ApiHeaderOptions>;
 };
 
 export default (options: ApiDocumentationOptions) => {
@@ -63,6 +66,12 @@ export default (options: ApiDocumentationOptions) => {
           ...query,
         }),
       );
+    });
+  }
+
+  if (options.headers) {
+    options.headers.forEach((header) => {
+      decorators.push(ApiHeader({ ...header }));
     });
   }
 

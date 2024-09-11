@@ -4,25 +4,100 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
+  Res,
   UseInterceptors,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Request, Response } from 'express';
 
 import { ValidationInterceptor } from 'src/common/validation/payload-validation.interceptor';
 import { SignIn, signInSchema } from './dto/sign-in.dto';
 import { AuthService } from './auth.service';
+import { default as enums } from 'src/enums';
 import { RouteDoc } from 'src/common/docs';
+import { EnvSchema } from 'src/config';
 import * as docs from './docs';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  private readonly setSecure: boolean =
+    this.config.get('NODE_ENV') === enums.ENVIRONMENTS.PRODUCTION;
+
+  constructor(
+    private authService: AuthService,
+    private config: ConfigService<EnvSchema, true>,
+  ) {}
 
   @Post('/login')
   @RouteDoc(docs.login)
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(new ValidationInterceptor(signInSchema))
-  async signIn(@Body() body: SignIn) {
-    const token = await this.authService.signIn(body);
-    return { access_token: token };
+  async signIn(
+    @Body() body: SignIn,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token, refresh_token } = await this.authService.signIn(body);
+
+    response.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure: this.setSecure,
+      sameSite: 'strict',
+    });
+
+    response.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      secure: this.setSecure,
+      sameSite: 'strict',
+      path: '/auth/refresh',
+    });
+
+    return { message: 'Success' };
+  }
+
+  @Post('/refresh')
+  @RouteDoc(docs.refresh)
+  @HttpCode(HttpStatus.OK)
+  async refreshAccessToken(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token, refresh_token } =
+      await this.authService.refreshToken(request);
+
+    response.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure: this.setSecure,
+      sameSite: 'strict',
+    });
+
+    response.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      secure: this.setSecure,
+      sameSite: 'strict',
+      path: '/auth/refresh',
+    });
+
+    return { message: 'Success' };
+  }
+
+  @Post('/logout')
+  @RouteDoc(docs.logout)
+  @HttpCode(HttpStatus.OK)
+  async logout(@Res() response: Response) {
+    response.clearCookie('access_token', {
+      httpOnly: true,
+      secure: this.setSecure,
+      sameSite: 'strict',
+    });
+
+    response.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: this.setSecure,
+      sameSite: 'strict',
+      path: '/auth/refresh',
+    });
+
+    response.json({ message: 'Logged out successfully' });
   }
 }

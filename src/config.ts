@@ -5,6 +5,8 @@ export const envSchema = zod.object({
   API_DOMAIN: zod.string(),
   API_PORT: zod.coerce.number().optional().default(4000),
   ALLOWED_ORIGINS: zod.string(),
+  ACCESS_TOKEN_EXPIRATION_TIME: zod.string(),
+  REFRESH_TOKEN_EXPIRATION_TIME: zod.string(),
 
   // SMTP Config
   SMTP_HOST: zod.string(),

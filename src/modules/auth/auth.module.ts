@@ -14,7 +14,7 @@ import { EnvSchema } from 'src/config';
   controllers: [AuthController],
   exports: [AuthService],
   imports: [
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     UsersModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
