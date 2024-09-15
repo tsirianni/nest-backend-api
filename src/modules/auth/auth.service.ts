@@ -5,7 +5,7 @@ import { Request } from 'express';
 import * as bcrypt from 'bcrypt';
 
 import { UsersService } from '../users/users.service';
-import { SignIn } from './dto/sign-in.dto';
+import { SignInDTO } from './dto/sign-in.dto';
 import { EnvSchema } from 'src/config';
 
 type Tokens = {
@@ -21,7 +21,7 @@ export class AuthService {
     private config: ConfigService<EnvSchema, true>,
   ) {}
 
-  async signIn({ username, password }: SignIn): Promise<Tokens> {
+  async signIn({ username, password }: SignInDTO): Promise<Tokens> {
     const user = await this.usersService.findOneByEmail({ email: username });
 
     if (!user) {

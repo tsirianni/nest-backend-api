@@ -4,4 +4,4 @@ export const findOneUserByIdSchema = {
   params: zod.object({ id: zod.string() }),
 };
 
-export type FindOneUserById = zod.infer<typeof findOneUserByIdSchema.params>;
+export type FindOneUserByIdDTO = zod.infer<typeof findOneUserByIdSchema.params>;

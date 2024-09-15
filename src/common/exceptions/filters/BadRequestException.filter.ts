@@ -2,7 +2,6 @@ import {
   ExceptionFilter,
   Catch,
   ArgumentsHost,
-  HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -19,7 +18,7 @@ interface FormattedException {
 
 @Catch(BadRequestException)
 export default class BadRequestExceptionFilter implements ExceptionFilter {
-  formatException(exception: any, ctx: HttpArgumentsHost) {
+  formatException(exception: BadRequestException, ctx: HttpArgumentsHost) {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
 
@@ -32,7 +31,7 @@ export default class BadRequestExceptionFilter implements ExceptionFilter {
     return response.status(status).json(formattedException);
   }
 
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: BadRequestException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const formattedException = this.formatException(exception, ctx);
 

@@ -10,8 +10,8 @@ export default async function handleDatabaseCall<T>(
 ) {
   try {
     return await dbCall;
-  } catch (error: any) {
-    if (errorHandler) errorHandler(error);
-    else throw new DatabaseException(error);
+  } catch (error) {
+    if (errorHandler) errorHandler(error as PrismaException);
+    else throw new DatabaseException(error as PrismaException);
   }
 }

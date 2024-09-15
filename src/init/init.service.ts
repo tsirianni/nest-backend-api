@@ -17,7 +17,7 @@ export class InitService {
       await this.connectToDatabase();
 
       this.events.emitEvent('ready', this.logger);
-    } catch (error: any) {
+    } catch (error) {
       this.logger.error(
         `Initialization failed: ${error.message}`,
         error.stack,

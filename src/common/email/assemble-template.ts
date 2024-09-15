@@ -4,6 +4,7 @@ import { getHtmlString } from './templates/utils';
 
 export default function assembleTemplate(
   type: AllTypes,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   templateArgs: any,
 ): { subject: string; html: string } {
   let subject;
