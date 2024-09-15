@@ -12,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 
 import { ValidationInterceptor } from 'src/common/validation/payload-validation.interceptor';
-import { SignIn, signInSchema } from './dto/sign-in.dto';
+import { AuthDTOs, default as schemas } from './dto';
 import { AuthService } from './auth.service';
 import { default as enums } from 'src/enums';
 import { RouteDoc } from 'src/common/docs';
@@ -32,9 +32,9 @@ export class AuthController {
   @Post('/login')
   @RouteDoc(docs.login)
   @HttpCode(HttpStatus.OK)
-  @UseInterceptors(new ValidationInterceptor(signInSchema))
+  @UseInterceptors(new ValidationInterceptor(schemas.signIn))
   async signIn(
-    @Body() body: SignIn,
+    @Body() body: AuthDTOs['signIn'],
     @Res({ passthrough: true }) response: Response,
   ) {
     const { access_token, refresh_token } = await this.authService.signIn(body);

@@ -6,20 +6,20 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Request } from 'express';
-import { ZodObject } from 'zod';
+import { UnknownKeysParam, ZodObject, ZodRawShape } from 'zod';
 import { BadRequestException } from '../exceptions';
 
 type SchemaContainer = {
-  params?: ZodObject<any, any>;
-  body?: ZodObject<any, any>;
-  query?: ZodObject<any, any>;
+  params?: ZodObject<ZodRawShape, UnknownKeysParam>;
+  body?: ZodObject<ZodRawShape, UnknownKeysParam>;
+  query?: ZodObject<ZodRawShape, UnknownKeysParam>;
 };
 
 @Injectable()
 export class ValidationInterceptor implements NestInterceptor {
   constructor(public validationObject: SchemaContainer) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<Request>();
     const { body, params, query } = request;
 
@@ -39,7 +39,10 @@ export class ValidationInterceptor implements NestInterceptor {
     return next.handle();
   }
 
-  validateParams(params: any, paramsSchema: ZodObject<any, any>) {
+  validateParams(
+    params: unknown,
+    paramsSchema: ZodObject<ZodRawShape, UnknownKeysParam>,
+  ) {
     const result = paramsSchema.safeParse(params);
     if (!result.success) {
       throw new BadRequestException(result.error, 'params');
@@ -48,7 +51,10 @@ export class ValidationInterceptor implements NestInterceptor {
     return;
   }
 
-  validateBody(body: any, bodySchema: ZodObject<any, any>) {
+  validateBody(
+    body: unknown,
+    bodySchema: ZodObject<ZodRawShape, UnknownKeysParam>,
+  ) {
     const result = bodySchema.safeParse(body);
 
     if (!result.success) {
@@ -58,7 +64,10 @@ export class ValidationInterceptor implements NestInterceptor {
     return;
   }
 
-  validateQuery(query: any, querySchema: ZodObject<any, any>) {
+  validateQuery(
+    query: unknown,
+    querySchema: ZodObject<ZodRawShape, UnknownKeysParam>,
+  ) {
     const result = querySchema.safeParse(query);
     if (!result.success) {
       throw new BadRequestException(result.error, 'query');

@@ -11,22 +11,19 @@ import * as bcrypt from 'bcrypt';
 import { DateTime } from 'luxon';
 
 import { PrismaService } from 'src/common/database/prisma/prisma.service';
+import errorCodes from 'src/common/database/prisma/error-codes';
+import { EmailService } from 'src/common/email/email.service';
+import errorTypes from 'src/common/exceptions/error-types';
+import { handleDatabaseCall } from 'src/common/utils';
+import { User } from './entities/user.entity';
+import { UserDTOs } from './dto';
 import {
   BaseException,
   UnprocessableEntityException,
 } from 'src/common/exceptions';
-import { EmailService } from 'src/common/email/email.service';
-import errorTypes from 'src/common/exceptions/error-types';
-import { ValidateSignUp } from './dto/validate-sign-up';
-import { handleDatabaseCall } from 'src/common/utils';
-import { CreateUserDto } from './dto/create.dto';
-import { FindOneUserById } from './dto/find-one-by-id.dto';
-import { FindOneUserByEmail } from './dto/find-one-by-email.dto';
 import DatabaseException, {
   PrismaException,
 } from 'src/common/exceptions/Database.exception';
-
-import errorCodes from 'src/common/database/prisma/error-codes';
 
 @Injectable()
 export class UsersService {
@@ -36,7 +33,7 @@ export class UsersService {
     private database: PrismaService,
   ) {}
 
-  async create(user: CreateUserDto) {
+  async create(user: UserDTOs['createUser']): Promise<void> {
     const existingVerificationCodes = await handleDatabaseCall(
       this.database.signUpVerificationCode.findMany({
         where: {
@@ -120,14 +117,12 @@ export class UsersService {
         name: user.name,
         verificationCode: signUpVerificationCode,
       });
-    } catch (error: any) {
+    } catch (error) {
       throw new BaseException(error.message);
     }
-
-    return;
   }
 
-  async validateSignUp(signUpInfo: ValidateSignUp) {
+  async validateSignUp(signUpInfo: UserDTOs['validateSignUp']): Promise<void> {
     const signUpVerificationCode = await handleDatabaseCall(
       this.database.signUpVerificationCode.findFirst({
         where: {
@@ -167,7 +162,7 @@ export class UsersService {
     }
   }
 
-  async findOneById(payload: FindOneUserById) {
+  async findOneById(payload: UserDTOs['findOneById']): Promise<Partial<User>> {
     const desiredParameters = ['name', 'email', 'userTypeId'];
     const selectObject: Record<string, boolean> = {};
     desiredParameters.forEach((param) => {
@@ -189,7 +184,9 @@ export class UsersService {
   }
 
   // Used by Auth
-  async findOneByEmail(payload: FindOneUserByEmail) {
+  async findOneByEmail(
+    payload: UserDTOs['findOneByEmail'],
+  ): Promise<User | null> {
     const user = await handleDatabaseCall(
       this.database.user.findUnique({
         where: { email: payload.email },

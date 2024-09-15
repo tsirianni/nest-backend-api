@@ -1,4 +1,4 @@
-// src/event.service.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@nestjs/common';
 import { EventEmitter } from 'events';
 

@@ -7,4 +7,4 @@ export const signInSchema = {
   }),
 };
 
-export type SignIn = zod.infer<typeof signInSchema.body>;
+export type SignInDTO = zod.infer<typeof signInSchema.body>;
