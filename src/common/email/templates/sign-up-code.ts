@@ -1,10 +1,8 @@
-import { TypeToTemplateArgsMap } from '../templates/enums';
+import { TypeToTemplateArgsMap } from './enums';
 import { getHtmlString } from './utils';
 
 export default (args: TypeToTemplateArgsMap['SIGN_UP_CODE']) => {
-  const rawTemplate = getHtmlString('sign-up-code.html');
-
-  let fullTemplate = rawTemplate;
+  let fullTemplate = getHtmlString('sign-up-code.html');
   Object.entries(args).forEach(([key, value]) => {
     fullTemplate = fullTemplate.replace(`:${key}`, `${value}`);
   });

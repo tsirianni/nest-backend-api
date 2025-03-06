@@ -1,12 +1,12 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
+  Catch,
+  ConflictException,
+  ExceptionFilter,
   HttpException,
   HttpStatus,
-  UnauthorizedException,
-  ConflictException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
@@ -23,10 +23,7 @@ interface FormattedException {
 export default class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
-  formatException(
-    exception: HttpException | DatabaseException,
-    ctx: HttpArgumentsHost,
-  ) {
+  formatException(exception: HttpException | DatabaseException, ctx: HttpArgumentsHost) {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -40,12 +37,7 @@ export default class HttpExceptionFilter implements ExceptionFilter {
     }
 
     // Log and return error
-    if (
-      !(
-        exception instanceof UnauthorizedException ||
-        exception instanceof ConflictException
-      )
-    ) {
+    if (!(exception instanceof UnauthorizedException || exception instanceof ConflictException)) {
       this.logger.error(exception.message, exception.stack);
     }
 
@@ -54,8 +46,6 @@ export default class HttpExceptionFilter implements ExceptionFilter {
 
   catch(exception: HttpException | DatabaseException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const formattedException = this.formatException(exception, ctx);
-
-    return formattedException;
+    return this.formatException(exception, ctx);
   }
 }

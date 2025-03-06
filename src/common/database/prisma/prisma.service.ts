@@ -2,10 +2,7 @@ import { Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class PrismaService
-  extends PrismaClient
-  implements OnApplicationShutdown
-{
+export class PrismaService extends PrismaClient implements OnApplicationShutdown {
   constructor() {
     super({ log: ['warn'] });
   }
@@ -14,9 +11,7 @@ export class PrismaService
 
   // Disconnect from DB on crashes
   async onApplicationShutdown(signal: string) {
-    this.logger.warn(
-      `Received ${signal} signal. Disconnecting from database...`,
-    );
-    return await this.$disconnect();
+    this.logger.warn(`Received ${signal} signal. Disconnecting from database...`);
+    return this.$disconnect();
   }
 }

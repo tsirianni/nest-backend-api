@@ -9,11 +9,7 @@ import { AllTypes, TypeToTemplateArgsMap } from './templates/enums';
 export class EmailService {
   constructor(private config: ConfigService<EnvSchema, true>) {}
 
-  async sendMail<T extends AllTypes>(
-    to: string,
-    type: T,
-    templateArgs: TypeToTemplateArgsMap[T],
-  ): Promise<void> {
+  async sendMail<T extends AllTypes>(to: string, type: T, templateArgs: TypeToTemplateArgsMap[T]): Promise<void> {
     const transporter = this.getTransporter();
     const { html, subject } = assembleTemplate(type, templateArgs);
 
@@ -26,7 +22,7 @@ export class EmailService {
   }
 
   getTransporter(): nodemailer.Transporter {
-    const transporter = nodemailer.createTransport({
+    return nodemailer.createTransport({
       host: this.config.get('SMTP_HOST'),
       port: this.config.get('SMTP_PORT'),
       auth: {
@@ -34,7 +30,5 @@ export class EmailService {
         pass: this.config.get('SMTP_PASSWORD'),
       },
     });
-
-    return transporter;
   }
 }
