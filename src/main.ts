@@ -49,4 +49,5 @@ async function bootstrap() {
 
   await initService.init();
 }
+
 bootstrap();

@@ -19,7 +19,7 @@ import { AuthController } from './modules/auth/auth.controller';
         const response = envSchema.safeParse(env);
         if (!response.success) {
           throw new Error(
-            `Application could not be started, missing environment variables: ${response.error}`,
+            `Application could not be started, missing environment variables or variable has incorrect values: ${response.error}`,
           );
         }
 
