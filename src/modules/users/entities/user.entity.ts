@@ -13,8 +13,8 @@ export class User implements UserModel {
   name!: string;
   email!: string;
   password!: string;
-  userTypeId!: number;
   verified!: boolean;
+  accountId!: string;
   createdAt!: Date;
   updatedAt!: Date | null;
   deletedAt!: Date | null;

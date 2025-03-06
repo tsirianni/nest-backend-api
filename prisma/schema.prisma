@@ -7,39 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model UserType {
-  id        Int       @id @db.SmallInt
-  name      String
+model Account {
+  id        String    @id @default(dbgenerated("gen_random_uuid()"))
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
+  users     User[]
 
-  // Relation fields
-  User User[]
-
-  @@map("user_type")
+  @@map("account")
 }
 
 model User {
-  id         String    @id @default(uuid())
-  name       String    @db.VarChar(255)
-  email      String    @unique @db.VarChar(255)
-  password   String    @db.Char(60)
-  userTypeId Int       @map("user_type_id") @db.SmallInt
-  verified   Boolean   @default(false)
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime? @updatedAt @map("updated_at")
-  deletedAt  DateTime? @map("deleted_at")
+  id        String    @id @default(dbgenerated("gen_random_uuid()"))
+  name      String    @db.VarChar(255)
+  email     String    @unique @db.VarChar(255)
+  password  String    @db.Char(60)
+  verified  Boolean   @default(false)
+  accountId String    @unique @map("account_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
-  // Relation fields
-  user_type_id           UserType                 @relation(fields: [userTypeId], references: [id])
   SignUpVerificationCode SignUpVerificationCode[]
 
   @@map("user")
 }
 
 model SignUpVerificationCode {
-  id        String    @id @default(uuid())
+  id        String    @id @default(dbgenerated("gen_random_uuid()"))
   code      String    @db.Char(60)
   email     String    @db.VarChar(255)
   userId    String    @map("user_id")
@@ -48,7 +44,6 @@ model SignUpVerificationCode {
   updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  // Relation fields
   user User @relation(fields: [userId], references: [id])
 
   @@map("sign_up_verification_code")

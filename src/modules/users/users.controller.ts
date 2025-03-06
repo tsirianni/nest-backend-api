@@ -1,16 +1,7 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseInterceptors,
-  Param,
-  Get,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseInterceptors } from '@nestjs/common';
 
 import { ValidationInterceptor } from 'src/common/validation/payload-validation.interceptor';
-import { UserDTOs, default as schemas } from './dto';
+import { default as schemas, UserDTOs } from './dto';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { RouteDoc } from 'src/common/docs';
@@ -32,9 +23,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @RouteDoc(userDocs.validateSignUp)
   @UseInterceptors(new ValidationInterceptor(schemas.validateSignUp))
-  async validateSignUp(
-    @Body() signUpInfo: UserDTOs['validateSignUp'],
-  ): Promise<void> {
+  async validateSignUp(@Body() signUpInfo: UserDTOs['validateSignUp']): Promise<void> {
     await this.usersService.validateSignUp(signUpInfo);
   }
 
@@ -42,9 +31,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @RouteDoc(userDocs.findOne)
   @UseInterceptors(new ValidationInterceptor(schemas.findOneById))
-  async findOne(
-    @Param() params: UserDTOs['findOneById'],
-  ): Promise<Partial<User>> {
+  async findOne(@Param() params: UserDTOs['findOneById']): Promise<Partial<User>> {
     return await this.usersService.findOneById({ id: params.id });
   }
 }

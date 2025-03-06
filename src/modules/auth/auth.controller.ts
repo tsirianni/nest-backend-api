@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Req,
-  Res,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UseInterceptors } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 
@@ -21,8 +12,7 @@ import * as docs from './docs';
 
 @Controller('auth')
 export class AuthController {
-  private readonly setSecure: boolean =
-    this.config.get('NODE_ENV') === enums.ENVIRONMENTS.PRODUCTION;
+  private readonly setSecure: boolean = this.config.get('NODE_ENV') === enums.ENVIRONMENTS.PRODUCTION;
 
   constructor(
     private authService: AuthService,
@@ -33,10 +23,7 @@ export class AuthController {
   @RouteDoc(docs.login)
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(new ValidationInterceptor(schemas.signIn))
-  async signIn(
-    @Body() body: AuthDTOs['signIn'],
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async signIn(@Body() body: AuthDTOs['signIn'], @Res({ passthrough: true }) response: Response) {
     const { access_token, refresh_token } = await this.authService.signIn(body);
 
     response.cookie('access_token', access_token, {
@@ -58,12 +45,8 @@ export class AuthController {
   @Post('/refresh')
   @RouteDoc(docs.refresh)
   @HttpCode(HttpStatus.OK)
-  async refreshAccessToken(
-    @Req() request: Request,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const { access_token, refresh_token } =
-      await this.authService.refreshToken(request);
+  async refreshAccessToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
+    const { access_token, refresh_token } = await this.authService.refreshToken(request);
 
     response.cookie('access_token', access_token, {
       httpOnly: true,

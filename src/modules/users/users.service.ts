@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { EnvSchema } from 'src/config';
@@ -10,6 +6,8 @@ import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { DateTime } from 'luxon';
 
+import DatabaseException, { PrismaException } from 'src/common/exceptions/Database.exception';
+import { BaseException, UnprocessableEntityException } from 'src/common/exceptions';
 import { PrismaService } from 'src/common/database/prisma/prisma.service';
 import errorCodes from 'src/common/database/prisma/error-codes';
 import { EmailService } from 'src/common/email/email.service';
@@ -17,13 +15,6 @@ import errorTypes from 'src/common/exceptions/error-types';
 import { handleDatabaseCall } from 'src/common/utils';
 import { User } from './entities/user.entity';
 import { UserDTOs } from './dto';
-import {
-  BaseException,
-  UnprocessableEntityException,
-} from 'src/common/exceptions';
-import DatabaseException, {
-  PrismaException,
-} from 'src/common/exceptions/Database.exception';
 
 @Injectable()
 export class UsersService {
@@ -43,50 +34,41 @@ export class UsersService {
     );
 
     const currentlyValidVerificationCode = existingVerificationCodes?.find(
-      (verificationCode) =>
-        DateTime.fromJSDate(verificationCode.expiresAt) > DateTime.now(),
+      (verificationCode) => DateTime.fromJSDate(verificationCode.expiresAt) > DateTime.now(),
     );
 
     if (currentlyValidVerificationCode) {
       throw new UnprocessableEntityException({
-        message:
-          'There is still a non-expired sign-up code attached to this email. Please verify your account with it',
+        message: 'There is still a non-expired sign-up code attached to this email. Please verify your account with it',
         type: errorTypes.USERS.CREATE.SIGN_UP_VALIDATION_CODE_STILL_ACTIVE,
       });
     }
 
-    const bcryptRounds = Number(
-      this.config.get('BCRYPT_ROUNDS', { infer: true }),
-    );
+    const bcryptRounds = Number(this.config.get('BCRYPT_ROUNDS', { infer: true }));
 
     const hashedPassword = await bcrypt.hash(user.password, bcryptRounds);
     const expiresAt = DateTime.now().plus({ minutes: 5 }).toJSDate();
     const signUpVerificationCode = crypto.randomInt(0, 1000000);
-    const hashedSignUpVerificationCode = await bcrypt.hash(
-      String(signUpVerificationCode),
-      bcryptRounds,
-    );
+    const hashedSignUpVerificationCode = await bcrypt.hash(String(signUpVerificationCode), bcryptRounds);
 
-    let userId = existingVerificationCodes?.length
-      ? existingVerificationCodes[0].userId
-      : undefined;
+    let userId = existingVerificationCodes?.length ? existingVerificationCodes[0].userId : undefined;
 
     if (!userId) {
+      const account = await handleDatabaseCall(this.database.account.create({}));
+
       const newUser = await handleDatabaseCall(
         this.database.user.create({
           data: {
             name: user.name,
             email: user.email,
-            userTypeId: user.profileType,
+            accountId: account!.id,
             password: hashedPassword,
           },
         }),
         function (error: PrismaException) {
           if (error instanceof Prisma.PrismaClientKnownRequestError) {
             if (error.code === errorCodes.UNIQUE_CONSTRAINT_FAILED) {
-              throw new ConflictException(
-                'There is already an user registered with the provided email address',
-              );
+              throw new ConflictException('There is already an user registered with the provided email address');
             }
           }
 
@@ -140,10 +122,7 @@ export class UsersService {
       });
     }
 
-    const isProvidedCodeCorrect = await bcrypt.compare(
-      signUpInfo.code,
-      signUpVerificationCode.code,
-    );
+    const isProvidedCodeCorrect = await bcrypt.compare(signUpInfo.code, signUpVerificationCode.code);
 
     if (isProvidedCodeCorrect) {
       await handleDatabaseCall(
@@ -163,7 +142,7 @@ export class UsersService {
   }
 
   async findOneById(payload: UserDTOs['findOneById']): Promise<Partial<User>> {
-    const desiredParameters = ['name', 'email', 'userTypeId'];
+    const desiredParameters = ['name', 'email', 'accountId', 'createdAt'];
     const selectObject: Record<string, boolean> = {};
     desiredParameters.forEach((param) => {
       selectObject[param] = true;
@@ -184,9 +163,7 @@ export class UsersService {
   }
 
   // Used by Auth
-  async findOneByEmail(
-    payload: UserDTOs['findOneByEmail'],
-  ): Promise<User | null> {
+  async findOneByEmail(payload: UserDTOs['findOneByEmail']): Promise<User | null> {
     const user = await handleDatabaseCall(
       this.database.user.findUnique({
         where: { email: payload.email },

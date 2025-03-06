@@ -12,7 +12,7 @@ export default function assembleTemplate(
 
   switch (type) {
     case 'SIGN_UP_CODE':
-      subject = 'Seu código de verificação - Financial Planner App';
+      subject = 'Seu código de verificação';
       templateBody = templates.signUpCode(templateArgs);
       break;
 
