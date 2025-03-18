@@ -8,6 +8,7 @@ import { InitModule } from './init/init.module';
 import { envSchema } from './config';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthController } from './modules/auth/auth.controller';
+import { AttachmentModule } from './modules/attachment/attachment.module';
 
 @Module({
   controllers: [AppController, AuthController],
@@ -30,6 +31,7 @@ import { AuthController } from './modules/auth/auth.controller';
     EventsModule,
     InitModule,
     AuthModule,
+    AttachmentModule,
   ],
 })
 export class AppModule {}

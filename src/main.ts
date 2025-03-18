@@ -1,7 +1,8 @@
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
+import * as passport from 'passport';
 import helmet from 'helmet';
 
 import * as exceptionFilters from './common/exceptions/filters';
@@ -20,6 +21,7 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
   app.use(cookieParser());
+  app.use(passport.initialize());
   app.use(helmet());
   app.enableCors({
     origin: configService.get('ALLOWED_ORIGINS'),
@@ -43,8 +45,9 @@ async function bootstrap() {
   // Global Exception Handlers
   app.useGlobalFilters(
     new exceptionFilters.HttpExceptionFilter(),
-    new exceptionFilters.UnprocessableEntityExceptionFilter(),
     new exceptionFilters.BadRequestExceptionFilter(),
+    new exceptionFilters.AttachmentExceptionFilter(),
+    new exceptionFilters.UnprocessableEntityExceptionFilter(),
   );
 
   await initService.init();

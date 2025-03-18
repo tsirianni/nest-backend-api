@@ -25,6 +25,7 @@ export default [
       ...eslintJs.configs.recommended.rules,
       'prettier/prettier': 'error',
       'no-console': 'warn',
+      'no-unused-vars': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

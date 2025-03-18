@@ -29,26 +29,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        JwtStrategy.geTokenFromCookie,
-        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (req: Request) => {
+          if (req.cookies && 'access_token' in req.cookies && req.cookies.access_token.length > 0) {
+            return req.cookies.access_token || null;
+          }
+
+          throw new UnauthorizedException();
+        },
       ]),
       secretOrKey: Buffer.from(publicKey, 'base64'),
+      ignoreExpiration: false,
       algorithms: ['RS256'],
       issuer: config.get('API_DOMAIN'),
       audience: config.get('ALLOWED_ORIGINS'),
     });
-  }
-
-  private static geTokenFromCookie(req: Request) {
-    if (
-      req.cookies &&
-      'access_token' in req.cookies &&
-      req.cookies.access_token.length > 0
-    ) {
-      return req.cookies.access_token;
-    }
-
-    return null;
   }
 
   async validate(payload: TokenSchema) {

@@ -8,11 +8,12 @@ datasource db {
 }
 
 model Account {
-  id        String    @id @default(dbgenerated("gen_random_uuid()"))
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-  users     User[]
+  id           String         @id @default(dbgenerated("gen_random_uuid()"))
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime?      @updatedAt @map("updated_at")
+  deletedAt    DateTime?      @map("deleted_at")
+  users        User[]
+  UploadedFile UploadedFile[]
 
   @@map("account")
 }
@@ -23,7 +24,7 @@ model User {
   email     String    @unique @db.VarChar(255)
   password  String    @db.Char(60)
   verified  Boolean   @default(false)
-  accountId String    @unique @map("account_id")
+  accountId String    @map("account_id")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
@@ -47,4 +48,20 @@ model SignUpVerificationCode {
   user User @relation(fields: [userId], references: [id])
 
   @@map("sign_up_verification_code")
+}
+
+model UploadedFile {
+  id           String    @id @default(dbgenerated("gen_random_uuid()"))
+  key          String    @unique @db.Uuid()
+  name         String    @db.VarChar(255)
+  originalName String    @map("original_name") @db.VarChar(255)
+  extension    String    @db.VarChar(10)
+  owner        String
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime? @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  account Account @relation(fields: [owner], references: [id], onDelete: Cascade)
+
+  @@map("uploaded_file")
 }

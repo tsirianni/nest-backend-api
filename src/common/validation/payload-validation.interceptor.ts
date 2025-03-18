@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Request } from 'express';
 import { UnknownKeysParam, ZodObject, ZodRawShape } from 'zod';
@@ -39,10 +34,7 @@ export class ValidationInterceptor implements NestInterceptor {
     return next.handle();
   }
 
-  validateParams(
-    params: unknown,
-    paramsSchema: ZodObject<ZodRawShape, UnknownKeysParam>,
-  ) {
+  validateParams(params: unknown, paramsSchema: ZodObject<ZodRawShape, UnknownKeysParam>) {
     const result = paramsSchema.safeParse(params);
     if (!result.success) {
       throw new BadRequestException(result.error, 'params');
@@ -51,10 +43,7 @@ export class ValidationInterceptor implements NestInterceptor {
     return;
   }
 
-  validateBody(
-    body: unknown,
-    bodySchema: ZodObject<ZodRawShape, UnknownKeysParam>,
-  ) {
+  validateBody(body: unknown, bodySchema: ZodObject<ZodRawShape, UnknownKeysParam>) {
     const result = bodySchema.safeParse(body);
 
     if (!result.success) {
@@ -64,10 +53,7 @@ export class ValidationInterceptor implements NestInterceptor {
     return;
   }
 
-  validateQuery(
-    query: unknown,
-    querySchema: ZodObject<ZodRawShape, UnknownKeysParam>,
-  ) {
+  validateQuery(query: unknown, querySchema: ZodObject<ZodRawShape, UnknownKeysParam>) {
     const result = querySchema.safeParse(query);
     if (!result.success) {
       throw new BadRequestException(result.error, 'query');
