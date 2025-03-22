@@ -3,10 +3,10 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards, Us
 import { ValidationInterceptor } from 'src/common/validation/payload-validation.interceptor';
 import { default as schemas, UserDTOs } from './dto';
 import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
+import { User } from './entities';
 import { RouteDoc } from 'src/common/docs';
 import * as userDocs from './docs';
-import { JWTAuthGuard } from '../auth/guards/jwt.guard';
+import { JWTAuthGuard } from '../auth/guards';
 
 @Controller('users')
 export class UsersController {

@@ -13,7 +13,7 @@ import errorCodes from 'src/common/database/prisma/error-codes';
 import { EmailService } from 'src/common/email/email.service';
 import errorTypes from 'src/common/exceptions/error-types';
 import { handleDatabaseCall } from 'src/common/utils';
-import { User } from './entities/user.entity';
+import { User } from './entities';
 import { UserDTOs } from './dto';
 
 @Injectable()

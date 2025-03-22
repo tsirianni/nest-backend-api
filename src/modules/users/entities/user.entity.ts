@@ -8,7 +8,7 @@ import { User as UserModel } from '@prisma/client';
   Again, this class is NOT intended to be used in any way other than offering a type.
 */
 
-export class User implements UserModel {
+export default class User implements UserModel {
   id!: string;
   name!: string;
   email!: string;
