@@ -1,4 +1,6 @@
 export { default as UnprocessableEntityException } from './UnprocessableEntity.exception';
 export { default as BadRequestException } from './BadRequest.exception';
+export { default as AttachmentException } from './Attachment.exception';
 export { default as DatabaseException } from './Database.exception';
 export { default as BaseException } from './Base.exception';
+export { default as errorTypes } from './error-types';

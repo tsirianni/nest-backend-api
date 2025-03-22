@@ -5,8 +5,7 @@ import { ApiDocumentationOptions } from 'src/common/docs/route-doc';
 export const signUp: ApiDocumentationOptions = {
   tag: ['Users'],
   summary: 'Signs Up a user',
-  description:
-    "Endpoint used to create a new user and send a verification code to the user's email address",
+  description: "Endpoint used to create a new user and send a verification code to the user's email address",
   requestBody: {
     schema: {
       type: 'object',
@@ -27,8 +26,7 @@ export const signUp: ApiDocumentationOptions = {
         profileType: {
           type: 'number',
           example: 1,
-          description:
-            'Possible profile types:\n\n`1` Technical\n`2` Non-Technical',
+          description: 'Possible profile types:\n\n`1` Technical\n`2` Non-Technical',
         },
       },
     },
@@ -45,8 +43,7 @@ export const signUp: ApiDocumentationOptions = {
     },
     {
       ...errorTemplates[HttpStatus.CONFLICT],
-      description:
-        'Happens when a user is already registered with the email address provided',
+      description: 'Happens when a user is already registered with the email address provided',
     },
     {
       ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR],
@@ -116,11 +113,13 @@ export const findOne: ApiDocumentationOptions = {
             type: 'string',
             example: 'john.doe@user.com',
           },
-          userTypeId: {
-            type: 'number',
-            example: 1,
-            description:
-              'Possible user types:\n\n`1` Technical\n`2` Non-Technical',
+          accountId: {
+            type: 'string',
+            example: '{{UUID}}',
+          },
+          createdAt: {
+            type: 'date',
+            example: new Date().toISOString(),
           },
         },
       },

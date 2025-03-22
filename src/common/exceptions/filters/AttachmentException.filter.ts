@@ -1,11 +1,6 @@
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 import { Response } from 'express';
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpStatus,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
 
 import UnprocessableEntityException from '../UnprocessableEntity.exception';
 
@@ -17,13 +12,8 @@ interface FormattedException {
 }
 
 @Catch(UnprocessableEntityException)
-export default class UnprocessableEntityExceptionFilter
-  implements ExceptionFilter
-{
-  formatException(
-    exception: UnprocessableEntityException,
-    ctx: HttpArgumentsHost,
-  ) {
+export default class UnprocessableEntityExceptionFilter implements ExceptionFilter {
+  formatException(exception: UnprocessableEntityException, ctx: HttpArgumentsHost) {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
 
@@ -39,8 +29,6 @@ export default class UnprocessableEntityExceptionFilter
 
   catch(exception: UnprocessableEntityException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const formattedException = this.formatException(exception, ctx);
-
-    return formattedException;
+    return this.formatException(exception, ctx);
   }
 }

@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { ZodError, z as zod } from 'zod';
+import { z as zod, ZodError } from 'zod';
 import errorMessages from '../validation/error-messages';
 import errorCodes from '../validation/error-codes';
 
@@ -18,10 +18,7 @@ export default class BadRequestException extends HttpException {
   validationIssues: validationIssue[] = [];
 
   constructor(error: ZodError | string, location: ErrorLocation) {
-    super(
-      typeof error === 'string' ? error : error.message,
-      HttpStatus.BAD_REQUEST,
-    );
+    super(typeof error === 'string' ? error : error.message, HttpStatus.BAD_REQUEST);
 
     this.name = 'Bad Request Exception';
 

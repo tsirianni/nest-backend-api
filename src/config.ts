@@ -28,6 +28,12 @@ export const envSchema = zod.object({
 
   // BCRYPT
   BCRYPT_ROUNDS: zod.coerce.number().optional().default(8),
+
+  // AWS
+  AWS_ACCESS_KEY_ID: zod.string(),
+  AWS_SECRET_ACCESS_KEY: zod.string(),
+  AWS_REGION: zod.string(),
+  AWS_ATTACHMENTS_BUCKET: zod.string(),
 });
 
 export type EnvSchema = zod.infer<typeof envSchema>;

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 
 import { ValidationInterceptor } from 'src/common/validation/payload-validation.interceptor';
 import { default as schemas, UserDTOs } from './dto';
@@ -6,6 +6,7 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { RouteDoc } from 'src/common/docs';
 import * as userDocs from './docs';
+import { JWTAuthGuard } from '../auth/guards/jwt.guard';
 
 @Controller('users')
 export class UsersController {
@@ -28,6 +29,7 @@ export class UsersController {
   }
 
   @Get('/:id')
+  @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.OK)
   @RouteDoc(userDocs.findOne)
   @UseInterceptors(new ValidationInterceptor(schemas.findOneById))
