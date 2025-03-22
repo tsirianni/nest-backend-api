@@ -20,7 +20,7 @@ const tokenSchema = zod.object({
 export type TokenSchema = zod.infer<typeof tokenSchema>;
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export default class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private config: ConfigService<EnvSchema, true>,
     private usersService: UsersService,

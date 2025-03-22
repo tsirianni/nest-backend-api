@@ -83,8 +83,7 @@ export default Object.seal({
         },
         message: {
           type: 'string',
-          example:
-            'There is still a non-expired sign-up code attached to this email. Please verify your account with it',
+          example: 'There is still a non-expired sign-up code attached to this email. Please verify your account with it',
         },
         type: {
           type: 'string',
@@ -109,8 +108,7 @@ export default Object.seal({
         },
         message: {
           type: 'string',
-          example:
-            'There is already an user registered with the provided email address',
+          example: 'There is already an user registered with the provided email address',
         },
       },
     },

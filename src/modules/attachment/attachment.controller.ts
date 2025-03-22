@@ -3,8 +3,8 @@ import { ValidationInterceptor } from '../../common/validation/payload-validatio
 import { AttachmentInterceptor } from '../../common/attachment';
 import { AttachmentDTOs, default as schemas } from './dto';
 import { AttachmentService } from './attachment.service';
-import { JWTAuthGuard } from '../auth/guards/jwt.guard';
-import { AuthenticatedRequest } from '../auth/dto/authenticated-request.dto';
+import { JWTAuthGuard } from '../auth/guards';
+import { AuthenticatedRequest } from '../auth/dto';
 
 @Controller('attachments')
 export class AttachmentController {
