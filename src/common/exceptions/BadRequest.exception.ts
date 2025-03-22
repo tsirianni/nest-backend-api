@@ -20,7 +20,7 @@ export default class BadRequestException extends HttpException {
   constructor(error: ZodError | string, location: ErrorLocation) {
     super(typeof error === 'string' ? error : error.message, HttpStatus.BAD_REQUEST);
 
-    this.name = 'Bad Request Exception';
+    this.name = 'BadRequestException';
 
     if (typeof error === 'object') {
       error.issues.forEach((issue: zod.ZodIssue) => {

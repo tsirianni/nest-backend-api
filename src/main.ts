@@ -46,7 +46,7 @@ async function bootstrap() {
   app.useGlobalFilters(
     new exceptionFilters.HttpExceptionFilter(),
     new exceptionFilters.BadRequestExceptionFilter(),
-    new exceptionFilters.AttachmentExceptionFilter(),
+    new exceptionFilters.AttachmentUploadExceptionFilter(),
     new exceptionFilters.UnprocessableEntityExceptionFilter(),
   );
 

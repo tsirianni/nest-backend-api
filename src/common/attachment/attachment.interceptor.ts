@@ -4,7 +4,7 @@ import { Request } from 'express';
 import * as path from 'node:path';
 import * as busboy from 'busboy';
 
-import { AttachmentException, errorTypes } from '../exceptions';
+import { AttachmentUploadException, errorTypes } from '../exceptions';
 import { Observable } from 'rxjs';
 
 type ConstructorSchema = {
@@ -32,7 +32,7 @@ export default class AttachmentInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<Request>();
 
     if (!request.headers['content-type']?.includes('multipart/form-data')) {
-      throw new AttachmentException({
+      throw new AttachmentUploadException({
         message: 'Invalid content-type',
         type: errorTypes.ATTACHMENTS.CREATE.INVALID_CONTENT_TYPE,
       });
@@ -80,7 +80,7 @@ export default class AttachmentInterceptor implements NestInterceptor {
         });
 
         if (filesWhichExceededSizeLimit.length > 0) {
-          attachmentException = new AttachmentException({
+          attachmentException = new AttachmentUploadException({
             message: 'One or more files have exceeded the allowed file size limit',
             type: errorTypes.ATTACHMENTS.CREATE.FILE_SIZE_LIMIT_EXCEEDED,
             filenames: filesWhichExceededSizeLimit,

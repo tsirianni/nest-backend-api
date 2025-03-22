@@ -2,7 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/commo
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 import { Response } from 'express';
 
-import AttachmentException from '../Attachment.exception';
+import AttachmentUploadException from '../AttachmentUploadException';
 
 interface FormattedException {
   statusCode?: HttpStatus;
@@ -11,9 +11,9 @@ interface FormattedException {
   type?: string;
 }
 
-@Catch(AttachmentException)
-export default class AttachmentExceptionFilter implements ExceptionFilter {
-  formatException(exception: AttachmentException, ctx: HttpArgumentsHost) {
+@Catch(AttachmentUploadException)
+export default class AttachmentUploadExceptionFilter implements ExceptionFilter {
+  formatException(exception: AttachmentUploadException, ctx: HttpArgumentsHost) {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
 
@@ -27,7 +27,7 @@ export default class AttachmentExceptionFilter implements ExceptionFilter {
     return response.status(status).json(formattedException);
   }
 
-  catch(exception: AttachmentException, host: ArgumentsHost) {
+  catch(exception: AttachmentUploadException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     return this.formatException(exception, ctx);
   }

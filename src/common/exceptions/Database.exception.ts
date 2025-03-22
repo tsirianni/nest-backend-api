@@ -15,7 +15,7 @@ export default class DatabaseException extends Error {
 
   constructor(error: PrismaException) {
     super(error.message);
-    this.name = 'Database Exception';
+    this.name = 'DatabaseException';
     this.stack = error.stack;
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {

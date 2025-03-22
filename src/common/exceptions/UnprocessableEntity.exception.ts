@@ -17,7 +17,7 @@ export default class UnprocessableEntityException extends Error {
       this.type = error.type;
     }
 
-    this.name = 'Unprocessable Entity Exception';
+    this.name = 'UnprocessableEntityException';
   }
 
   getStatus() {
