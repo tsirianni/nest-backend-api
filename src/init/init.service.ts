@@ -9,6 +9,7 @@ export class InitService {
     private readonly database: PrismaService,
     private readonly events: EventService,
   ) {}
+
   private readonly logger = new Logger(InitService.name);
 
   async init() {
@@ -18,11 +19,7 @@ export class InitService {
 
       this.events.emitEvent('ready', this.logger);
     } catch (error) {
-      this.logger.error(
-        `Initialization failed: ${error.message}`,
-        error.stack,
-        `code: ${error?.code || error?.statusCode}`,
-      );
+      this.logger.error(`Initialization failed: ${error.message}`, error.stack, `code: ${error?.code || error?.statusCode}`);
       process.exit(1);
     }
   }

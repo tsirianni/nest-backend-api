@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
-
 import DatabaseException from '../Database.exception';
 
 interface FormattedException {
@@ -19,7 +18,7 @@ interface FormattedException {
   statusCode?: HttpStatus;
 }
 
-@Catch(HttpException, DatabaseException)
+@Catch(HttpException, DatabaseException, Error)
 export default class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
@@ -27,21 +26,25 @@ export default class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const formattedException: FormattedException = {
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-    };
-
-    if (exception.message && status !== HttpStatus.INTERNAL_SERVER_ERROR) {
-      formattedException.message = exception.message;
-    }
-
     // Log and return error
     if (!(exception instanceof UnauthorizedException || exception instanceof ConflictException)) {
       this.logger.error(exception.message, exception.stack);
     }
 
-    return response.status(status).json(formattedException);
+    if (status !== HttpStatus.INTERNAL_SERVER_ERROR) {
+      const formattedException: FormattedException = {
+        statusCode: status,
+        timestamp: new Date().toISOString(),
+      };
+
+      if (exception.message && status !== HttpStatus.INTERNAL_SERVER_ERROR) {
+        formattedException.message = exception.message;
+      }
+
+      return response.status(status).json(formattedException);
+    } else {
+      return response.sendStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   catch(exception: HttpException | DatabaseException, host: ArgumentsHost) {
