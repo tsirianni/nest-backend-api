@@ -13,4 +13,4 @@ export const createUserDtoSchema = {
     .strict(),
 };
 
-export type CreateUserDto = zod.infer<typeof createUserDtoSchema.body>;
+export type CreateUserDTO = zod.infer<typeof createUserDtoSchema.body>;

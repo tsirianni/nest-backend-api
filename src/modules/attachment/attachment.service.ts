@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { EnvSchema } from '../../config';
 import { BaseException, DatabaseException } from '../../common/exceptions';
 import { CreateAttachmentResponseDTO } from './dto/create.response.dto';
-import { SignedInUserDto } from '../auth/dto/signed-in-user.dto';
+import { SignedInUserDTO } from '../auth/dto/signed-in-user.dto';
 import { handleDatabaseCall, isDatabaseException } from '../../common/utils';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
 
@@ -18,7 +18,7 @@ export class AttachmentService {
     private config: ConfigService<EnvSchema, true>,
   ) {}
 
-  async create(files: AttachmentDTOs['create']['files'], user: SignedInUserDto): Promise<AttachmentResponseDTOs['create'][]> {
+  async create(files: AttachmentDTOs['create']['files'], user: SignedInUserDTO): Promise<AttachmentResponseDTOs['create'][]> {
     if (!files || files.length === 0) {
       throw new BaseException('Files must be defined and must have at least 1 item');
     }
@@ -68,7 +68,7 @@ export class AttachmentService {
     return uploadedFiles;
   }
 
-  async download(attachmentId: string, user: SignedInUserDto): Promise<AttachmentResponseDTOs['download']> {
+  async download(attachmentId: string, user: SignedInUserDTO): Promise<AttachmentResponseDTOs['download']> {
     const attachment = await handleDatabaseCall(
       this.database.uploadedFile.findUnique({
         select: {
@@ -85,7 +85,7 @@ export class AttachmentService {
     return this.S3Service.getS3ObjectUrl(this.config.get('AWS_ATTACHMENTS_BUCKET'), attachment.key);
   }
 
-  async delete(attachmentId: string, user: SignedInUserDto): Promise<void> {
+  async delete(attachmentId: string, user: SignedInUserDTO): Promise<void> {
     const attachment = await handleDatabaseCall(
       this.database.uploadedFile.findUnique({
         select: {
