@@ -5,6 +5,7 @@ import { AttachmentDTOs, default as schemas } from './dto';
 import { AttachmentService } from './attachment.service';
 import { JWTAuthGuard } from '../auth/guards';
 import { AuthenticatedRequest } from '../auth/dto';
+import { DecryptUUIDPipe } from '../../common/validation';
 
 @Controller('attachments')
 export class AttachmentController {
@@ -24,7 +25,7 @@ export class AttachmentController {
   @UseGuards(JWTAuthGuard)
   @UseInterceptors(new ValidationInterceptor(schemas.download))
   @HttpCode(HttpStatus.OK)
-  download(@Req() req: AuthenticatedRequest, @Param() params: AttachmentDTOs['download']) {
+  download(@Req() req: AuthenticatedRequest, @Param(DecryptUUIDPipe) params: AttachmentDTOs['download']) {
     return this.attachmentService.download(params.id, req.user);
   }
 
@@ -32,7 +33,7 @@ export class AttachmentController {
   @UseGuards(JWTAuthGuard)
   @UseInterceptors(new ValidationInterceptor(schemas.delete))
   @HttpCode(HttpStatus.NO_CONTENT)
-  delete(@Req() req: AuthenticatedRequest, @Param() params: AttachmentDTOs['delete']) {
+  delete(@Req() req: AuthenticatedRequest, @Param(DecryptUUIDPipe) params: AttachmentDTOs['delete']) {
     return this.attachmentService.delete(params.id, req.user);
   }
 }

@@ -21,6 +21,7 @@ export default class BadRequestExceptionFilter implements ExceptionFilter {
       statusCode: status,
       timestamp: new Date().toISOString(),
       validationIssues: [...exception.validationIssues],
+      message: exception.message ? exception.message : undefined,
     };
 
     return response.status(status).json(formattedException);

@@ -8,12 +8,14 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies';
 import { EnvSchema } from 'src/config';
+import { PrismaModule } from '../../common/database/prisma/prisma.module';
 
 @Module({
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
   exports: [AuthService],
   imports: [
+    PrismaModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     UsersModule,
     JwtModule.registerAsync({

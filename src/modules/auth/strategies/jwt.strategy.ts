@@ -3,10 +3,10 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 
-import { UsersService } from 'src/modules/users/users.service';
 import { EnvSchema } from 'src/config';
 import { Request } from 'express';
 import { z as zod } from 'zod';
+import { PrismaService } from '../../../common/database/prisma/prisma.service';
 
 const tokenSchema = zod.object({
   sub: zod.string().uuid(),
@@ -23,7 +23,7 @@ export type TokenSchema = zod.infer<typeof tokenSchema>;
 export default class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private config: ConfigService<EnvSchema, true>,
-    private usersService: UsersService,
+    private database: PrismaService,
   ) {
     const publicKey = config.get('JWT_PUBLIC_KEY', { infer: true });
 
@@ -50,7 +50,10 @@ export default class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (!isTokenValid) throw new UnauthorizedException();
 
-    const user = await this.usersService.findOneById({ id: payload.sub });
+    const user = await this.database.user.findUnique({
+      where: { id: payload.sub },
+      select: this.database.createSelectObject(['id', 'name', 'email', 'accountId', 'createdAt']),
+    });
 
     if (!user) throw new UnauthorizedException();
 

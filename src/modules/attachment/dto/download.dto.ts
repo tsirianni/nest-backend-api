@@ -2,7 +2,7 @@ import { z as zod } from 'zod';
 
 export const downloadAttachmentSchema = {
   params: zod.object({
-    id: zod.string().uuid(),
+    id: zod.string(),
   }),
 };
 
