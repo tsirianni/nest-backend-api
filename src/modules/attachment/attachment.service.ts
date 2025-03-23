@@ -9,6 +9,7 @@ import { CreateAttachmentResponseDTO } from './dto/create.response.dto';
 import { SignedInUserDTO } from '../auth/dto/signed-in-user.dto';
 import { handleDatabaseCall, isDatabaseException } from '../../common/utils';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
+import { CipherService } from '../../common/cipher/cipher.service';
 
 @Injectable()
 export class AttachmentService {
@@ -16,6 +17,7 @@ export class AttachmentService {
     private S3Service: S3Service,
     private database: PrismaService,
     private config: ConfigService<EnvSchema, true>,
+    private cipherService: CipherService,
   ) {}
 
   async create(files: AttachmentDTOs['create']['files'], user: SignedInUserDTO): Promise<AttachmentResponseDTOs['create'][]> {
@@ -51,7 +53,7 @@ export class AttachmentService {
         else throw error;
       }
 
-      return { id: uploadedFile!.id, key };
+      return { id: this.cipherService.encryptUUID(uploadedFile!.id), key };
     });
 
     const results = await Promise.allSettled(promises);

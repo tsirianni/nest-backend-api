@@ -1,4 +1,7 @@
 import { z as zod } from 'zod';
+import { getCiphers } from 'crypto';
+
+const cryptoCiphers = getCiphers();
 
 export const envSchema = zod.object({
   NODE_ENV: zod.string(),
@@ -7,6 +10,12 @@ export const envSchema = zod.object({
   ALLOWED_ORIGINS: zod.string(),
   ACCESS_TOKEN_EXPIRATION_TIME: zod.string(),
   REFRESH_TOKEN_EXPIRATION_TIME: zod.string(),
+
+  // Encryption
+  UUID_CIPHER_ALGORITHM: zod.union(
+    cryptoCiphers.map((name) => zod.literal(name)) as [zod.ZodLiteral<string>, zod.ZodLiteral<string[]>],
+  ),
+  UUID_CIPHER_KEY: zod.string().length(64, 'Invalid cipher secret (must be 64 hex chars)'),
 
   // SMTP Config
   SMTP_HOST: zod.string(),

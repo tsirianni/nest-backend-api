@@ -9,6 +9,7 @@ import { DateTime } from 'luxon';
 import DatabaseException, { PrismaException } from 'src/common/exceptions/Database.exception';
 import { BaseException, UnprocessableEntityException } from 'src/common/exceptions';
 import { PrismaService } from 'src/common/database/prisma/prisma.service';
+import { CipherService } from '../../common/cipher/cipher.service';
 import errorCodes from 'src/common/database/prisma/error-codes';
 import { EmailService } from 'src/common/email/email.service';
 import errorTypes from 'src/common/exceptions/error-types';
@@ -22,6 +23,7 @@ export class UsersService {
     private emailService: EmailService,
     private config: ConfigService<EnvSchema, true>,
     private database: PrismaService,
+    private cipherService: CipherService,
   ) {}
 
   async create(user: UserDTOs['createUser']): Promise<void> {
@@ -142,16 +144,10 @@ export class UsersService {
   }
 
   async findOneById(payload: UserDTOs['findOneById']): Promise<Partial<User>> {
-    const desiredParameters = ['name', 'email', 'accountId', 'createdAt'];
-    const selectObject: Record<string, boolean> = {};
-    desiredParameters.forEach((param) => {
-      selectObject[param] = true;
-    });
-
     const user = await handleDatabaseCall(
       this.database.user.findUnique({
         where: { id: payload.id, verified: true },
-        select: selectObject,
+        select: this.database.createSelectObject(['id', 'name', 'email', 'accountId', 'createdAt']),
       }),
     );
 
@@ -159,7 +155,11 @@ export class UsersService {
       throw new NotFoundException();
     }
 
-    return user;
+    return {
+      ...user,
+      id: this.cipherService.encryptUUID(user.id),
+      accountId: this.cipherService.encryptUUID(user.accountId),
+    };
   }
 
   // Used by Auth
