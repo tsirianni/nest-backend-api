@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { errorTemplates } from '../../common/docs';
-import { ApiDocumentationOptions } from 'src/common/docs/route-doc';
+import { ApiDocumentationOptions } from '../../common/docs/route-doc';
 
 export const signUp: ApiDocumentationOptions = {
   tag: ['Users'],

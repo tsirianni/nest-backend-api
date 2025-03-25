@@ -1,6 +1,7 @@
+import { HttpStatus } from '@nestjs/common';
+
 import { ApiDocumentationOptions } from '../../common/docs/route-doc';
 import { errorTemplates } from '../../common/docs';
-import { HttpStatus } from '@nestjs/common';
 
 export const createAttachment: ApiDocumentationOptions = {
   tag: ['Attachment'],

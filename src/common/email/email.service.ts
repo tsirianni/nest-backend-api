@@ -6,7 +6,7 @@ import { EnvSchema } from 'src/config';
 import { AllTypes, TypeToTemplateArgsMap } from './templates/enums';
 
 @Injectable()
-export class EmailService {
+export default class EmailService {
   constructor(private config: ConfigService<EnvSchema, true>) {}
 
   async sendMail<T extends AllTypes>(to: string, type: T, templateArgs: TypeToTemplateArgsMap[T]): Promise<void> {

@@ -11,7 +11,7 @@ type SchemaContainer = {
 };
 
 @Injectable()
-export class ValidationInterceptor implements NestInterceptor {
+export default class ValidationInterceptor implements NestInterceptor {
   constructor(public validationObject: SchemaContainer) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
