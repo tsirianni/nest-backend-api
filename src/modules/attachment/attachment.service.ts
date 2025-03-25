@@ -10,6 +10,7 @@ import { SignedInUserDTO } from '../auth/dto/signed-in-user.dto';
 import { handleDatabaseCall, isDatabaseException } from '../../common/utils';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
 import { CipherService } from '../../common/cipher/cipher.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AttachmentService {
@@ -30,24 +31,29 @@ export class AttachmentService {
       let uploadedFile;
 
       try {
-        uploadedFile = await this.database.$transaction(async (prismaClient) => {
-          const uploadRecord = await handleDatabaseCall(
-            prismaClient.uploadedFile.create({
-              data: {
-                id: randomUUID(),
-                key,
-                owner: user.accountId,
-                name: file.parsedFilename,
-                extension: file.extension,
-                originalName: file.originalName,
-              },
-            }),
-          );
+        uploadedFile = await this.database.$transaction(
+          async (prismaClient) => {
+            const uploadRecord = await handleDatabaseCall(
+              prismaClient.uploadedFile.create({
+                data: {
+                  id: randomUUID(),
+                  key,
+                  owner: user.accountId,
+                  name: file.parsedFilename,
+                  extension: file.extension,
+                  originalName: file.originalName,
+                },
+              }),
+            );
 
-          await this.S3Service.uploadS3Object(this.config.get('AWS_ATTACHMENTS_BUCKET'), key, file);
+            await this.S3Service.uploadS3Object(this.config.get('AWS_ATTACHMENTS_BUCKET'), key, file);
 
-          return uploadRecord;
-        });
+            return uploadRecord;
+          },
+          {
+            isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead,
+          },
+        );
       } catch (error) {
         if (isDatabaseException(error)) throw new DatabaseException(error);
         else throw error;
@@ -102,13 +108,18 @@ export class AttachmentService {
     }
 
     try {
-      await this.database.$transaction<void>(async (prismaClient) => {
-        await prismaClient.uploadedFile.delete({
-          where: { id: attachmentId, owner: user.accountId },
-        });
+      await this.database.$transaction<void>(
+        async (prismaClient) => {
+          await prismaClient.uploadedFile.delete({
+            where: { id: attachmentId, owner: user.accountId },
+          });
 
-        await this.S3Service.deleteS3Object(this.config.get('AWS_ATTACHMENTS_BUCKET'), attachment.key);
-      });
+          await this.S3Service.deleteS3Object(this.config.get('AWS_ATTACHMENTS_BUCKET'), attachment.key);
+        },
+        {
+          isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead,
+        },
+      );
     } catch (error) {
       if (isDatabaseException(error)) throw new DatabaseException(error);
       else throw error;
