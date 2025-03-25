@@ -8,16 +8,16 @@ type ErrorLocation = 'body' | 'query' | 'params';
 interface validationIssue {
   code: string;
   path: (string | number)[];
-  properties: (string | number)[];
+  nonAllowedKeys: string[];
   message: string;
-  location: ErrorLocation;
+  location?: ErrorLocation;
 }
 
 export default class BadRequestException extends HttpException {
   name: string;
   validationIssues: validationIssue[] = [];
 
-  constructor(error: ZodError | string, location: ErrorLocation) {
+  constructor(error: ZodError | string, location?: ErrorLocation) {
     super(typeof error === 'string' ? error : error.message, HttpStatus.BAD_REQUEST);
 
     this.name = 'BadRequestException';
@@ -27,13 +27,13 @@ export default class BadRequestException extends HttpException {
         const issueObject: validationIssue = {
           message: errorMessages[issue.code],
           path: [],
-          properties: [],
+          nonAllowedKeys: [],
           code: issue.code,
           location,
         };
 
         if (issue.code === errorCodes.UNRECOGNIZED_KEYS) {
-          issue.keys.forEach((key) => issueObject['properties'].push(key));
+          issue.keys.forEach((key) => issueObject['nonAllowedKeys'].push(key));
         } else {
           issue.path.forEach((value) => issueObject['path'].push(value));
         }

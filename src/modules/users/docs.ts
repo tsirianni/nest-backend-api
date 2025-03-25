@@ -98,6 +98,7 @@ export const findOne: ApiDocumentationOptions = {
       required: true,
     },
   ],
+  auth: { cookie: true },
   responses: [
     {
       status: HttpStatus.OK,
@@ -123,6 +124,9 @@ export const findOne: ApiDocumentationOptions = {
           },
         },
       },
+    },
+    {
+      ...errorTemplates[HttpStatus.UNAUTHORIZED],
     },
     {
       ...errorTemplates[HttpStatus.NOT_FOUND],

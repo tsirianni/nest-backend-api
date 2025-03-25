@@ -16,12 +16,13 @@ export default class BadRequestExceptionFilter implements ExceptionFilter {
   formatException(exception: BadRequestException, ctx: HttpArgumentsHost) {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
+    const hasValidationIssues = exception.validationIssues && exception.validationIssues.length > 0;
 
     const formattedException: FormattedException = {
       statusCode: status,
       timestamp: new Date().toISOString(),
       validationIssues: [...exception.validationIssues],
-      message: exception.message ? exception.message : undefined,
+      message: hasValidationIssues ? undefined : exception.message,
     };
 
     return response.status(status).json(formattedException);
