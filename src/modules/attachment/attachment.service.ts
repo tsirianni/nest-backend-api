@@ -53,7 +53,7 @@ export class AttachmentService {
         else throw error;
       }
 
-      return { id: this.cipherService.encryptUUID(uploadedFile!.id), key };
+      return { id: this.cipherService.encryptUUID(uploadedFile!.id), key: this.cipherService.encryptUUID(key) };
     });
 
     const results = await Promise.allSettled(promises);

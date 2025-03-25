@@ -5,8 +5,7 @@ import { HttpStatus } from '@nestjs/common';
 export const login: ApiDocumentationOptions = {
   tag: ['Auth'],
   summary: 'Endpoint to authenticate a user',
-  description:
-    'Endpoint allows a user to authenticate and access protected resources on the application',
+  description: 'Endpoint allows a user to authenticate and access protected resources on the application',
   requestBody: {
     schema: {
       type: 'object',
@@ -26,8 +25,7 @@ export const login: ApiDocumentationOptions = {
   responses: [
     {
       status: HttpStatus.OK,
-      description:
-        'Login operation was successful and the cookies have been returned',
+      description: 'Login operation was successful and the cookies have been returned',
       headers: {
         'Set-Cookie': {
           description: 'JWT access_token cookie',
@@ -60,24 +58,14 @@ export const login: ApiDocumentationOptions = {
 export const refresh: ApiDocumentationOptions = {
   tag: ['Auth'],
   summary: 'Endpoint to refresh tokens',
-  description:
-    'Endpoint allows a user to get new tokens once the access_token has expired',
-  headers: [
-    {
-      name: 'Cookie',
-      description: 'The cookie required to access the route',
-      required: true,
-      schema: {
-        type: 'string',
-        example: 'refresh_token=TOKEN',
-      },
-    },
-  ],
+  description: 'Endpoint allows a user to get new tokens once the access_token has expired',
+  auth: {
+    cookie: true,
+  },
   responses: [
     {
       status: HttpStatus.OK,
-      description:
-        'Refresh operation was successful and the new cookies have been returned',
+      description: 'Refresh operation was successful and the new cookies have been returned',
       headers: {
         'Set-Cookie': {
           description: 'JWT access_token cookie',
@@ -114,8 +102,7 @@ export const logout: ApiDocumentationOptions = {
   responses: [
     {
       status: HttpStatus.OK,
-      description:
-        'Logout operation was successful and the cookies have been cleared',
+      description: 'Logout operation was successful and the cookies have been cleared',
       schema: {
         type: 'object',
         properties: {

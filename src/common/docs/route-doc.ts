@@ -1,23 +1,30 @@
 import { applyDecorators } from '@nestjs/common';
 import {
-  ApiOperation,
-  ApiResponse,
   ApiBody,
-  ApiParam,
-  ApiQuery,
-  ApiResponseOptions,
   ApiBodyOptions,
-  ApiParamOptions,
-  ApiQueryOptions,
+  ApiConsumes,
+  ApiCookieAuth,
   ApiHeader,
   ApiHeaderOptions,
+  ApiOperation,
+  ApiParam,
+  ApiParamOptions,
+  ApiQuery,
+  ApiQueryOptions,
+  ApiResponse,
+  ApiResponseOptions,
 } from '@nestjs/swagger';
+
+type RequestBodyOptions = ApiBodyOptions & { contentType?: string };
 
 export type ApiDocumentationOptions = {
   summary: string;
   description: string;
   tag: string[];
-  requestBody?: ApiBodyOptions;
+  auth?: {
+    cookie?: boolean;
+  };
+  requestBody?: RequestBodyOptions;
   responses?: Array<ApiResponseOptions>;
   params?: Array<ApiParamOptions>;
   queries?: Array<ApiQueryOptions>;
@@ -35,8 +42,14 @@ export default (options: ApiDocumentationOptions) => {
     }),
   );
 
+  if (options.auth) {
+    if (options.auth.cookie) {
+      decorators.push(ApiCookieAuth());
+    }
+  }
+
   if (options.requestBody) {
-    decorators.push(ApiBody({ ...options.requestBody }));
+    decorators.push(ApiBody({ ...options.requestBody }), ApiConsumes(options.requestBody.contentType || 'application/json'));
   }
 
   if (options.responses) {

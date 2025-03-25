@@ -6,6 +6,8 @@ import { AttachmentService } from './attachment.service';
 import { JWTAuthGuard } from '../auth/guards';
 import { AuthenticatedRequest } from '../auth/dto';
 import { DecryptUUIDPipe } from '../../common/validation';
+import * as attachmentDocs from './docs';
+import { RouteDoc } from '../../common/docs';
 
 @Controller('attachments')
 export class AttachmentController {
@@ -13,6 +15,7 @@ export class AttachmentController {
 
   @Post('/')
   @UseGuards(JWTAuthGuard)
+  @RouteDoc(attachmentDocs.createAttachment)
   @UseInterceptors(new AttachmentInterceptor({ maxFileSizeInBytes: 2 * 1024 * 1024 }), new ValidationInterceptor(schemas.create))
   @HttpCode(HttpStatus.CREATED)
   create(@Req() req: AuthenticatedRequest) {
@@ -23,6 +26,7 @@ export class AttachmentController {
 
   @Get('/:id')
   @UseGuards(JWTAuthGuard)
+  @RouteDoc(attachmentDocs.downloadAttachment)
   @UseInterceptors(new ValidationInterceptor(schemas.download))
   @HttpCode(HttpStatus.OK)
   download(@Req() req: AuthenticatedRequest, @Param(DecryptUUIDPipe) params: AttachmentDTOs['download']) {
@@ -31,6 +35,7 @@ export class AttachmentController {
 
   @Delete('/:id')
   @UseGuards(JWTAuthGuard)
+  @RouteDoc(attachmentDocs.deleteAttachment)
   @UseInterceptors(new ValidationInterceptor(schemas.delete))
   @HttpCode(HttpStatus.NO_CONTENT)
   delete(@Req() req: AuthenticatedRequest, @Param(DecryptUUIDPipe) params: AttachmentDTOs['delete']) {

@@ -38,6 +38,12 @@ async function bootstrap() {
     .setTitle('Nestjs backend API')
     .setDescription('The Nestjs backend API description')
     .setVersion('1.0')
+    .addCookieAuth('access_token', {
+      type: 'apiKey',
+      description: 'The access token required to access private routes',
+      in: 'cookie',
+      name: 'access_token',
+    })
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);

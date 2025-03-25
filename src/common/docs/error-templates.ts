@@ -5,22 +5,8 @@ export default Object.seal({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal Server Error',
     schema: {
-      type: 'object',
-      properties: {
-        statusCode: {
-          type: 'number',
-          example: HttpStatus.INTERNAL_SERVER_ERROR,
-        },
-        timestamp: {
-          type: 'Date',
-          example: '2024-08-25T15:52:11.260Z',
-        },
-        message: {
-          type: 'string',
-          example: 'The error message here',
-          optional: true,
-        },
-      },
+      type: 'text',
+      example: 'Internal Server Error',
     },
   },
 
@@ -40,7 +26,7 @@ export default Object.seal({
         },
         message: {
           type: 'string',
-          example: 'Invalid Credentials',
+          example: 'Unauthorized',
         },
       },
     },
@@ -109,6 +95,67 @@ export default Object.seal({
         message: {
           type: 'string',
           example: 'There is already an user registered with the provided email address',
+        },
+      },
+    },
+  },
+
+  [HttpStatus.BAD_REQUEST]: {
+    status: HttpStatus.BAD_REQUEST,
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: {
+          type: 'number',
+          example: HttpStatus.UNPROCESSABLE_ENTITY,
+        },
+        timestamp: {
+          type: 'Date',
+          example: '2024-08-25T15:52:11.260Z',
+        },
+        validationIssues: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              message: {
+                type: 'string',
+                example: 'A string value appears to be incorrect',
+              },
+              path: {
+                type: 'array',
+                description: 'The path to the property with the error. Empty when "nonAllowedKeys" is filled',
+                items: {
+                  anyOf: [{ type: 'string' }, { type: 'number' }],
+                },
+                example: ['files', 0, 'mimeType'],
+              },
+              nonAllowedKeys: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  description: 'Array of non-allowed keys sent in the request',
+                  example: 'accountDeletedAt',
+                },
+              },
+              code: {
+                type: 'string',
+                example: 'unrecognized_keys',
+              },
+              location: {
+                type: 'string',
+                description:
+                  'The location of the property that generated the validation issue. Possible values are: <br><br>' +
+                  'body, query or params',
+                example: 'body',
+              },
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          description: 'The error message. Only present if "validationIssues" is empty',
+          example: 'Invalid ID',
         },
       },
     },
