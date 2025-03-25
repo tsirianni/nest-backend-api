@@ -47,63 +47,66 @@ export class UsersService {
     }
 
     const bcryptRounds = Number(this.config.get('BCRYPT_ROUNDS', { infer: true }));
-
     const hashedPassword = await bcrypt.hash(user.password, bcryptRounds);
     const expiresAt = DateTime.now().plus({ minutes: 5 }).toJSDate();
     const signUpVerificationCode = crypto.randomInt(0, 1000000);
     const hashedSignUpVerificationCode = await bcrypt.hash(String(signUpVerificationCode), bcryptRounds);
-
     let userId = existingVerificationCodes?.length ? existingVerificationCodes[0].userId : undefined;
 
-    if (!userId) {
-      const account = await handleDatabaseCall(this.database.account.create({}));
+    await this.database.$transaction(
+      async (PrismaClient) => {
+        if (!userId) {
+          const account = await handleDatabaseCall(PrismaClient.account.create({}));
 
-      const newUser = await handleDatabaseCall(
-        this.database.user.create({
-          data: {
-            name: user.name,
-            email: user.email,
-            accountId: account!.id,
-            password: hashedPassword,
-          },
-        }),
-        function (error: PrismaException) {
-          if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === errorCodes.UNIQUE_CONSTRAINT_FAILED) {
-              throw new ConflictException('There is already an user registered with the provided email address');
-            }
+          const newUser = await handleDatabaseCall(
+            PrismaClient.user.create({
+              data: {
+                name: user.name,
+                email: user.email,
+                accountId: account!.id,
+                password: hashedPassword,
+              },
+            }),
+            function (error: PrismaException) {
+              if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === errorCodes.UNIQUE_CONSTRAINT_FAILED) {
+                  throw new ConflictException('There is already an user registered with the provided email address');
+                }
+              }
+
+              throw new DatabaseException(error);
+            },
+          );
+
+          if (newUser) {
+            userId = newUser.id;
           }
+        } else {
+          await handleDatabaseCall(
+            PrismaClient.signUpVerificationCode.create({
+              data: {
+                userId,
+                code: hashedSignUpVerificationCode,
+                email: user.email,
+                expiresAt,
+              },
+            }),
+          );
+        }
 
-          throw new DatabaseException(error);
-        },
-      );
-
-      if (newUser) {
-        userId = newUser.id;
-      }
-    }
-
-    if (userId) {
-      await handleDatabaseCall(
-        this.database.signUpVerificationCode.create({
-          data: {
-            userId,
-            code: hashedSignUpVerificationCode,
-            email: user.email,
-            expiresAt,
-          },
-        }),
-      );
-    }
-
-    try {
-      await this.emailService.sendMail(user.email, 'SIGN_UP_CODE', {
-        name: user.name,
-        verificationCode: signUpVerificationCode,
-      });
-    } catch (error) {
-      throw new BaseException(error.message);
-    }
+        try {
+          await this.emailService.sendMail(user.email, 'SIGN_UP_CODE', {
+            name: user.name,
+            verificationCode: signUpVerificationCode,
+          });
+        } catch (error) {
+          throw new BaseException(error.message);
+        }
+      },
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead,
+      },
+    );
   }
 
   async validateSignUp(signUpInfo: UserDTOs['validateSignUp']): Promise<void> {
