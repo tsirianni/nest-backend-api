@@ -2,12 +2,12 @@ import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UseInterceptors
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 
-import { ValidationInterceptor } from 'src/common/validation/payload-validation.interceptor';
+import { ValidationInterceptor } from '../../common/validation';
 import { AuthDTOs, default as schemas } from './dto';
 import { AuthService } from './auth.service';
-import { default as enums } from 'src/enums';
-import { RouteDoc } from 'src/common/docs';
-import { EnvSchema } from 'src/config';
+import { default as enums } from '../../enums';
+import { RouteDoc } from '../../common/docs';
+import { EnvSchema } from '../../config';
 import * as docs from './docs';
 
 @Controller('auth')

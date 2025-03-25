@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 
-import { ValidationInterceptor } from 'src/common/validation/payload-validation.interceptor';
+import { ValidationInterceptor } from '../../common/validation';
 import { default as schemas, UserDTOs } from './dto';
 import { UsersService } from './users.service';
 import { User } from './entities';

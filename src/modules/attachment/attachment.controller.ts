@@ -1,11 +1,11 @@
 import { Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ValidationInterceptor } from '../../common/validation/payload-validation.interceptor';
+
+import { DecryptUUIDPipe, ValidationInterceptor } from '../../common/validation';
 import { AttachmentInterceptor } from '../../common/attachment';
 import { AttachmentDTOs, default as schemas } from './dto';
 import { AttachmentService } from './attachment.service';
 import { JWTAuthGuard } from '../auth/guards';
 import { AuthenticatedRequest } from '../auth/dto';
-import { DecryptUUIDPipe } from '../../common/validation';
 import * as attachmentDocs from './docs';
 import { RouteDoc } from '../../common/docs';
 

@@ -2,11 +2,11 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-
-import { EnvSchema } from 'src/config';
 import { Request } from 'express';
 import { z as zod } from 'zod';
-import { PrismaService } from '../../../common/database/prisma/prisma.service';
+
+import { PrismaService } from '../../../common/database/prisma/';
+import { EnvSchema } from '../../../config';
 
 const tokenSchema = zod.object({
   sub: zod.string().uuid(),

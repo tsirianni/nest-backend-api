@@ -1,19 +1,22 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
-import { EnvSchema } from 'src/config';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { DateTime } from 'luxon';
 
-import DatabaseException, { PrismaException } from 'src/common/exceptions/Database.exception';
-import { BaseException, UnprocessableEntityException } from 'src/common/exceptions';
-import { PrismaService } from 'src/common/database/prisma/prisma.service';
+import {
+  BaseException,
+  DatabaseException,
+  errorTypes,
+  PrismaException,
+  UnprocessableEntityException,
+} from 'src/common/exceptions';
+import { errorCodes, PrismaService } from '../../common/database/prisma/';
 import { CipherService } from '../../common/cipher/cipher.service';
-import errorCodes from 'src/common/database/prisma/error-codes';
-import { EmailService } from 'src/common/email/email.service';
-import errorTypes from 'src/common/exceptions/error-types';
-import { handleDatabaseCall } from 'src/common/utils';
+import { handleDatabaseCall } from '../../common/utils';
+import { EmailService } from '../../common/email';
+import { EnvSchema } from '../../config';
 import { User } from './entities';
 import { UserDTOs } from './dto';
 

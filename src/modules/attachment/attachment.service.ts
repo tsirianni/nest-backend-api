@@ -1,16 +1,17 @@
-import { S3Service } from '../../common/aws/S3/s3.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { AttachmentDTOs, AttachmentResponseDTOs } from './dto';
-import { randomUUID } from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
+import { randomUUID } from 'crypto';
+
+import { S3Service } from '../../common/aws/S3/s3.service';
+import { AttachmentDTOs, AttachmentResponseDTOs } from './dto';
 import { EnvSchema } from '../../config';
 import { BaseException, DatabaseException } from '../../common/exceptions';
 import { CreateAttachmentResponseDTO } from './dto/create.response.dto';
 import { SignedInUserDTO } from '../auth/dto/signed-in-user.dto';
 import { handleDatabaseCall, isDatabaseException } from '../../common/utils';
-import { PrismaService } from '../../common/database/prisma/prisma.service';
+import { PrismaService } from '../../common/database/prisma';
 import { CipherService } from '../../common/cipher/cipher.service';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AttachmentService {

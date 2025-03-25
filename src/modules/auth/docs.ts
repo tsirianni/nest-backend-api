@@ -1,4 +1,4 @@
-import { ApiDocumentationOptions } from 'src/common/docs/route-doc';
+import { ApiDocumentationOptions } from '../../common/docs/route-doc';
 import { errorTemplates } from '../../common/docs';
 import { HttpStatus } from '@nestjs/common';
 

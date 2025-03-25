@@ -2,7 +2,7 @@ import { Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnApplicationShutdown {
+export default class PrismaService extends PrismaClient implements OnApplicationShutdown {
   constructor() {
     super({ log: ['warn'] });
   }

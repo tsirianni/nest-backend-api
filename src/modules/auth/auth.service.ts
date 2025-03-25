@@ -6,9 +6,9 @@ import * as bcrypt from 'bcrypt';
 
 import { UsersService } from '../users/users.service';
 import { SignInDTO } from './dto/sign-in.dto';
-import { EnvSchema } from 'src/config';
+import { EnvSchema } from '../../config';
 
-type Tokens = {
+export type Tokens = {
   access_token: string;
   refresh_token: string;
 };
