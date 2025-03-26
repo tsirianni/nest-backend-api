@@ -12,12 +12,14 @@ import * as docs from './docs';
 
 @Controller('auth')
 export class AuthController {
-  private readonly setSecure: boolean = this.config.get('NODE_ENV') === enums.ENVIRONMENTS.PRODUCTION;
+  private readonly setSecure: boolean;
 
   constructor(
     private authService: AuthService,
     private config: ConfigService<EnvSchema, true>,
-  ) {}
+  ) {
+    this.setSecure = this.config.get('NODE_ENV') === enums.ENVIRONMENTS.PRODUCTION;
+  }
 
   @Post('/login')
   @RouteDoc(docs.login)
@@ -81,6 +83,6 @@ export class AuthController {
       path: '/auth/refresh',
     });
 
-    response.json({ message: 'Logged out successfully' });
+    return { message: 'Logged out successfully' };
   }
 }
