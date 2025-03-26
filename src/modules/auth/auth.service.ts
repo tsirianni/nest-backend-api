@@ -15,11 +15,21 @@ export type Tokens = {
 
 @Injectable()
 export class AuthService {
+  private readonly accessTokenExpirationTime: string;
+  private readonly refreshTokenExpirationTime: string;
+  private readonly apiDomain: string;
+  private readonly allowedOrigins: string[];
+
   constructor(
     private jwt: JwtService,
     private usersService: UsersService,
     private config: ConfigService<EnvSchema, true>,
-  ) {}
+  ) {
+    this.accessTokenExpirationTime = this.config.get('ACCESS_TOKEN_EXPIRATION_TIME');
+    this.refreshTokenExpirationTime = this.config.get('REFRESH_TOKEN_EXPIRATION_TIME');
+    this.apiDomain = this.config.get('API_DOMAIN');
+    this.allowedOrigins = this.config.get('ALLOWED_ORIGINS');
+  }
 
   async signIn({ username, password }: SignInDTO): Promise<Tokens> {
     const user = await this.usersService.findOneByEmail({ email: username });
@@ -36,18 +46,18 @@ export class AuthService {
     const access_token = this.jwt.sign(
       { sub: user.id },
       {
-        expiresIn: this.config.get('ACCESS_TOKEN_EXPIRATION_TIME'),
-        issuer: this.config.get('API_DOMAIN'),
-        audience: this.config.get('ALLOWED_ORIGINS'),
+        expiresIn: this.accessTokenExpirationTime,
+        issuer: this.apiDomain,
+        audience: this.allowedOrigins,
       },
     );
 
     const refresh_token = this.jwt.sign(
       { sub: user.id },
       {
-        expiresIn: this.config.get('REFRESH_TOKEN_EXPIRATION_TIME'),
-        issuer: this.config.get('API_DOMAIN'),
-        audience: this.config.get('ALLOWED_ORIGINS'),
+        expiresIn: this.refreshTokenExpirationTime,
+        issuer: this.apiDomain,
+        audience: this.allowedOrigins,
       },
     );
 
@@ -67,18 +77,18 @@ export class AuthService {
     const access_token = this.jwt.sign(
       { sub },
       {
-        expiresIn: this.config.get('ACCESS_TOKEN_EXPIRATION_TIME'),
-        issuer: this.config.get('API_DOMAIN'),
-        audience: this.config.get('ALLOWED_ORIGINS'),
+        expiresIn: this.accessTokenExpirationTime,
+        issuer: this.apiDomain,
+        audience: this.allowedOrigins,
       },
     );
 
     const refresh_token = this.jwt.sign(
       { sub },
       {
-        expiresIn: this.config.get('REFRESH_TOKEN_EXPIRATION_TIME'),
-        issuer: this.config.get('API_DOMAIN'),
-        audience: this.config.get('ALLOWED_ORIGINS'),
+        expiresIn: this.refreshTokenExpirationTime,
+        issuer: this.apiDomain,
+        audience: this.allowedOrigins,
       },
     );
 

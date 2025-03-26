@@ -11,7 +11,7 @@ import {
   errorTypes,
   PrismaException,
   UnprocessableEntityException,
-} from 'src/common/exceptions';
+} from '../../common/exceptions';
 import { errorCodes, PrismaService } from '../../common/database/prisma/';
 import { CipherService } from '../../common/cipher/cipher.service';
 import { handleDatabaseCall } from '../../common/utils';
@@ -169,10 +169,14 @@ export class UsersService {
   }
 
   // Used by Auth
-  async findOneByEmail(payload: UserDTOs['findOneByEmail']): Promise<User | null> {
+  async findOneByEmail(payload: UserDTOs['findOneByEmail']): Promise<Pick<User, 'id' | 'password'> | null> {
     const user = await handleDatabaseCall(
       this.database.user.findUnique({
         where: { email: payload.email },
+        select: {
+          id: true,
+          password: true,
+        },
       }),
     );
 
