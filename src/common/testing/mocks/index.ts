@@ -3,3 +3,7 @@ export { default as createConfigService } from './config-service';
 export { MockUsersService, default as createUsersService } from './users-service';
 export { MockJwtService, default as createJwtService } from './jwt-service';
 export { MockAuthService, default as createAuthService } from './auth-service';
+export { MockCipherService, default as createCipherService } from './cipher-service';
+export { MockEmailService, default as createEmailService } from './email-service';
+export { default as prismaMock } from './prisma/prisma-service';
+export { default as createBcryptMock } from './bcrypt';

@@ -1,23 +1,22 @@
 jest.mock('bcrypt');
 
+import * as mocks from '../../common/testing/mocks';
 import { getMockReq } from '@jest-mock/express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 
 import { UsersService } from '../users/users.service';
-import * as mocks from '../../common/testing/mocks';
 import { ConfigService } from '@nestjs/config';
 import { SignInDTO } from './dto/sign-in.dto';
 import { AuthService } from './auth.service';
-import { User } from '../users/entities';
+import { User } from '../../common/entities';
 
 describe('AuthService', () => {
   let authService: AuthService;
   let jwtService: mocks.MockJwtService;
   let usersService: mocks.MockUsersService;
-  const mockedBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
+  const mockedBcrypt = mocks.createBcryptMock();
   const configService = mocks.createConfigService();
 
   // Config service variable's returns
@@ -91,7 +90,7 @@ describe('AuthService', () => {
 
     it('should throw an UnauthorizedException if the passwords do not match', async () => {
       usersService.findOneByEmail.mockResolvedValueOnce(mockFindOneByEmailReturn);
-      mockedBcrypt.compare.mockImplementationOnce(() => false);
+      mockedBcrypt.compare.mockImplementationOnce(async () => false);
 
       let receivedError;
       try {
@@ -112,7 +111,7 @@ describe('AuthService', () => {
 
       it('should return the tokens', async () => {
         usersService.findOneByEmail.mockResolvedValueOnce(mockFindOneByEmailReturn);
-        mockedBcrypt.compare.mockImplementationOnce(() => true);
+        mockedBcrypt.compare.mockImplementationOnce(async () => true);
         jwtService.sign.mockReturnValueOnce(accessToken);
         jwtService.sign.mockReturnValueOnce(refreshToken);
 
@@ -124,7 +123,7 @@ describe('AuthService', () => {
 
       it('should sign the access_token with the correct parameters', async () => {
         usersService.findOneByEmail.mockResolvedValueOnce(mockFindOneByEmailReturn);
-        mockedBcrypt.compare.mockImplementationOnce(() => true);
+        mockedBcrypt.compare.mockImplementationOnce(async () => true);
         jwtService.sign.mockReturnValueOnce(accessToken);
         jwtService.sign.mockReturnValueOnce(refreshToken);
 
@@ -143,7 +142,7 @@ describe('AuthService', () => {
 
       it('should sign the refresh_token with the correct parameters', async () => {
         usersService.findOneByEmail.mockResolvedValueOnce(mockFindOneByEmailReturn);
-        mockedBcrypt.compare.mockImplementationOnce(() => true);
+        mockedBcrypt.compare.mockImplementationOnce(async () => true);
         jwtService.sign.mockReturnValueOnce(accessToken);
         jwtService.sign.mockReturnValueOnce(refreshToken);
 
