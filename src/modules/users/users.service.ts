@@ -17,7 +17,7 @@ import { CipherService } from '../../common/cipher/cipher.service';
 import { handleDatabaseCall } from '../../common/utils';
 import { EmailService } from '../../common/email';
 import { EnvSchema } from '../../config';
-import { User } from './entities';
+import { User } from '../../common/entities';
 import { UserDTOs } from './dto';
 
 @Injectable()
@@ -32,6 +32,7 @@ export class UsersService {
   async create(user: UserDTOs['createUser']): Promise<void> {
     const existingVerificationCodes = await handleDatabaseCall(
       this.database.signUpVerificationCode.findMany({
+        select: this.database.createSelectObject(['id', 'userId', 'expiresAt']),
         where: {
           email: user.email,
         },
@@ -119,7 +120,6 @@ export class UsersService {
           email: signUpInfo.email,
           expiresAt: { gte: DateTime.now().toJSDate() },
         },
-        include: { user: { select: { id: true } } },
       }),
     );
 
@@ -133,18 +133,25 @@ export class UsersService {
     const isProvidedCodeCorrect = await bcrypt.compare(signUpInfo.code, signUpVerificationCode.code);
 
     if (isProvidedCodeCorrect) {
-      await handleDatabaseCall(
-        this.database.user.update({
-          data: { verified: true },
-          where: { id: signUpVerificationCode.user.id },
-        }),
-      );
+      await this.database.$transaction(
+        async (prismaClient) => {
+          await handleDatabaseCall(
+            prismaClient.user.update({
+              data: { verified: true },
+              where: { id: signUpVerificationCode.userId },
+            }),
+          );
 
-      await handleDatabaseCall(
-        // Delete current and possibly expired verification codes
-        this.database.signUpVerificationCode.deleteMany({
-          where: { email: signUpInfo.email },
-        }),
+          await handleDatabaseCall(
+            // Delete current and possibly expired verification codes
+            prismaClient.signUpVerificationCode.deleteMany({
+              where: { email: signUpInfo.email },
+            }),
+          );
+        },
+        {
+          isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead,
+        },
       );
     }
   }
@@ -173,10 +180,7 @@ export class UsersService {
     const user = await handleDatabaseCall(
       this.database.user.findUnique({
         where: { email: payload.email },
-        select: {
-          id: true,
-          password: true,
-        },
+        select: this.database.createSelectObject(['id', 'password']),
       }),
     );
 

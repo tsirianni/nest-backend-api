@@ -10,4 +10,6 @@ module.exports = {
   },
   collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: '../coverage',
+  clearMocks: true,
+  setupFilesAfterEnv: ['<rootDir>/common/testing/mocks/prisma/prisma-service.ts'],
 };

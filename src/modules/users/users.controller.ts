@@ -1,10 +1,10 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 
-import { ValidationInterceptor } from '../../common/validation';
+import { DecryptUUIDPipe, ValidationInterceptor } from '../../common/validation';
 import { default as schemas, UserDTOs } from './dto';
 import { UsersService } from './users.service';
-import { User } from './entities';
-import { RouteDoc } from 'src/common/docs';
+import { User } from '../../common/entities';
+import { RouteDoc } from '../..//common/docs';
 import * as userDocs from './docs';
 import { JWTAuthGuard } from '../auth/guards';
 
@@ -33,7 +33,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @RouteDoc(userDocs.findOne)
   @UseInterceptors(new ValidationInterceptor(schemas.findOneById))
-  async findOne(@Param() params: UserDTOs['findOneById']): Promise<Partial<User>> {
+  async findOne(@Param(DecryptUUIDPipe) params: UserDTOs['findOneById']): Promise<Partial<User>> {
     return await this.usersService.findOneById({ id: params.id });
   }
 }
