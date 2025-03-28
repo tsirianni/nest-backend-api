@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/' # Look for `package.json` in the `root` directory
+    schedule:
+      interval: 'daily'
+    assignees:
+      - 'tsirianni'
+    labels:
+      - 'npm dependencies'
+    commit-message:
+      prefix: 'chore(deps): '
+      prefix-development: 'chore(dev-deps): '
