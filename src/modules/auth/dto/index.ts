@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import type { Request } from 'express';
 
 import { SignInDTO, signInSchema } from './sign-in.dto';
 import { SignedInUserDTO } from './signed-in-user.dto';

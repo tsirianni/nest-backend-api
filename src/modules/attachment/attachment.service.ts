@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 import { S3Service } from '../../common/aws/S3/s3.service';
 import { AttachmentDTOs, AttachmentResponseDTOs } from './dto';
 import { EnvSchema } from '../../config';
-import { BaseException, DatabaseException } from '../../common/exceptions';
+import { DatabaseException } from '../../common/exceptions';
 import { CreateAttachmentResponseDTO } from './dto/create.response.dto';
 import { SignedInUserDTO } from '../auth/dto/signed-in-user.dto';
 import { handleDatabaseCall, isDatabaseException } from '../../common/utils';
@@ -15,18 +15,18 @@ import { CipherService } from '../../common/cipher/cipher.service';
 
 @Injectable()
 export class AttachmentService {
+  private readonly attachmentsBucket: string;
+
   constructor(
     private S3Service: S3Service,
     private database: PrismaService,
     private config: ConfigService<EnvSchema, true>,
     private cipherService: CipherService,
-  ) {}
+  ) {
+    this.attachmentsBucket = this.config.get('AWS_ATTACHMENTS_BUCKET');
+  }
 
   async create(files: AttachmentDTOs['create']['files'], user: SignedInUserDTO): Promise<AttachmentResponseDTOs['create'][]> {
-    if (!files || files.length === 0) {
-      throw new BaseException('Files must be defined and must have at least 1 item');
-    }
-
     const promises = files.map(async (file): Promise<AttachmentResponseDTOs['create']> => {
       const key = randomUUID();
       let uploadedFile;
@@ -47,7 +47,7 @@ export class AttachmentService {
               }),
             );
 
-            await this.S3Service.uploadS3Object(this.config.get('AWS_ATTACHMENTS_BUCKET'), key, file);
+            await this.S3Service.uploadS3Object(this.attachmentsBucket, key, file);
 
             return uploadRecord;
           },
@@ -91,7 +91,7 @@ export class AttachmentService {
       throw new NotFoundException('Attachment not found');
     }
 
-    return this.S3Service.getS3ObjectUrl(this.config.get('AWS_ATTACHMENTS_BUCKET'), attachment.key);
+    return this.S3Service.getS3ObjectUrl(this.attachmentsBucket, attachment.key);
   }
 
   async delete(attachmentId: string, user: SignedInUserDTO): Promise<void> {
@@ -115,7 +115,7 @@ export class AttachmentService {
             where: { id: attachmentId, owner: user.accountId },
           });
 
-          await this.S3Service.deleteS3Object(this.config.get('AWS_ATTACHMENTS_BUCKET'), attachment.key);
+          await this.S3Service.deleteS3Object(this.attachmentsBucket, attachment.key);
         },
         {
           isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead,
