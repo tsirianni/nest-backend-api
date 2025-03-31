@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-
-import { CipherModule } from '../../common/cipher/cipher.module';
 import * as mocks from '../../common/testing/mocks';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UserDTOs } from './dto';
+import { ConfigService } from '@nestjs/config';
+import { CipherService } from '../../common/cipher/cipher.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -13,11 +13,18 @@ describe('UsersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      imports: [CipherModule],
       providers: [
         {
           provide: UsersService,
           useValue: mocks.createUsersService(),
+        },
+        {
+          provide: ConfigService,
+          useValue: mocks.createConfigService(),
+        },
+        {
+          provide: CipherService,
+          useValue: mocks.createCipherService(),
         },
       ],
     }).compile();
