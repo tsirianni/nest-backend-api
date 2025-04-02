@@ -1,8 +1,7 @@
 import errorCodes from './error-codes';
 
 export default Object.seal({
-  [errorCodes.INVALID_TYPE]:
-    'Invalid parameter value. Make sure that a value is being sent and that it has the correct type',
+  [errorCodes.INVALID_TYPE]: 'Invalid parameter value. Make sure that a value is being sent and that it has the correct type',
   [errorCodes.INVALID_LITERAL]: 'Invalid literal value',
   [errorCodes.CUSTOM]: 'Custom',
   [errorCodes.INVALID_UNION]: 'Invalid union value',
