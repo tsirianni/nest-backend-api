@@ -16,7 +16,7 @@ export default class ValidationInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<Request>();
-    const { body, params, query } = request;
+    const { body = {}, params, query } = request;
 
     if (Object.keys(body).length && this.validationObject.body) {
       this.validateBody(body, this.validationObject.body);

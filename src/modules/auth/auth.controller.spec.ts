@@ -56,8 +56,6 @@ describe('AuthController', () => {
     beforeEach(() => {
       mockSignInReturn = tokenSets[0];
       credentials = { username: 'user', password: 'password' };
-
-      // @ts-expect-error Mocked response does not include deprecated method "sendfile"
       requestResponse = mockedResponse.res;
     });
 
@@ -106,11 +104,8 @@ describe('AuthController', () => {
 
     beforeEach(() => {
       mockRefreshTokenReturn = tokenSets[1];
-
-      // @ts-expect-error Mocked response does not include deprecated method "sendfile"
       requestResponse = mockedResponse.res;
 
-      // @ts-expect-error Mocked request does not include deprecated object "param"
       request = getMockReq({
         cookies: {
           ['access_token']: tokenSets[0].access_token,
@@ -161,7 +156,6 @@ describe('AuthController', () => {
     let requestResponse: Response;
 
     beforeEach(() => {
-      // @ts-expect-error Mocked response does not include deprecated method "sendfile"
       requestResponse = mockedResponse.res;
     });
 

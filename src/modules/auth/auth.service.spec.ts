@@ -175,7 +175,6 @@ describe('AuthService', () => {
     it('should throw an UnauthorizedException if the request has no refresh token cookie', async () => {
       let receivedError;
       try {
-        // @ts-expect-error Mocked request does not include deprecated object "param"
         await authService.refreshToken(getMockReq());
       } catch (error) {
         receivedError = error;
@@ -202,7 +201,6 @@ describe('AuthService', () => {
         jwtService.sign.mockReturnValueOnce(accessToken);
         jwtService.sign.mockReturnValueOnce(refreshToken);
 
-        // @ts-expect-error Mocked request does not include deprecated object "param"
         const response = await authService.refreshToken(request);
 
         expect(response.access_token).toStrictEqual(accessToken);
@@ -214,7 +212,6 @@ describe('AuthService', () => {
         jwtService.sign.mockReturnValueOnce(accessToken);
         jwtService.sign.mockReturnValueOnce(refreshToken);
 
-        // @ts-expect-error Mocked request does not include deprecated object "param"
         await authService.refreshToken(request);
 
         expect(jwtService.sign).toHaveBeenNthCalledWith(
@@ -233,7 +230,6 @@ describe('AuthService', () => {
         jwtService.sign.mockReturnValueOnce(accessToken);
         jwtService.sign.mockReturnValueOnce(refreshToken);
 
-        // @ts-expect-error Mocked request does not include deprecated object "param"
         await authService.refreshToken(request);
 
         expect(jwtService.sign).toHaveBeenNthCalledWith(
