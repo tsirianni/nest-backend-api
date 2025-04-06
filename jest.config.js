@@ -8,8 +8,9 @@ module.exports = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: '../coverage',
   clearMocks: true,
   setupFilesAfterEnv: ['<rootDir>/common/testing/mocks/prisma/prisma-service.ts'],
+  collectCoverageFrom: ['**/*.service.ts', '**/*.controller.ts', '**/*.interceptor.ts'],
+  coveragePathIgnorePatterns: ['/src/init/', 'src/common/httpClient/', 'src/common/database'],
 };
