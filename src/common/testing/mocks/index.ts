@@ -9,3 +9,5 @@ export { default as prismaMock } from './prisma/prisma-service';
 export { default as createBcryptMock } from './bcrypt';
 export { MockAttachmentService, default as createAttachmentService } from './attachment-service';
 export { MockS3Service, default as createS3Service } from './s3-service';
+export { default as createExecutionContext } from './core/execution-context';
+export { default as createCallHandler } from './core/call-handler';

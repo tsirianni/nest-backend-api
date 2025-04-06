@@ -104,7 +104,7 @@ export default class AttachmentInterceptor implements NestInterceptor {
 
   /* Feel free to add your custom naming parsing logic, this is just an example */
   parseFilename(filename: string): string {
-    return filename.replace(',', '.');
+    return filename.replace(/,/g, '.').trim();
   }
 
   getFileExtension(filename: string): string {

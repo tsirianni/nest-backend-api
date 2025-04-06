@@ -20,6 +20,7 @@ export default {
     PNG: 'image/png',
     SVG: 'image/svg+xml',
     PDF: 'application/pdf',
+    JSON: 'application/json',
   },
 
   FILE_EXTENSION: {
@@ -29,5 +30,6 @@ export default {
     PNG: 'png',
     PDF: 'pdf',
     SVG: 'svg',
+    JSON: 'json',
   },
 };
