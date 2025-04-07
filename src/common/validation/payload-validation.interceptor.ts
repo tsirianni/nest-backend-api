@@ -4,7 +4,7 @@ import { Request } from 'express';
 import { UnknownKeysParam, ZodObject, ZodRawShape } from 'zod';
 import { BadRequestException } from '../exceptions';
 
-type SchemaContainer = {
+export type SchemaContainer = {
   params?: ZodObject<ZodRawShape, UnknownKeysParam>;
   body?: ZodObject<ZodRawShape, UnknownKeysParam>;
   query?: ZodObject<ZodRawShape, UnknownKeysParam>;
