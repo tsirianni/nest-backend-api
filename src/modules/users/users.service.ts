@@ -13,11 +13,12 @@ import {
   UnprocessableEntityException,
 } from '../../common/exceptions';
 import { errorCodes, PrismaService } from '../../common/database/prisma/';
+import { SignUpVerificationCode, User } from '../../common/entities';
 import { CipherService } from '../../common/cipher/cipher.service';
 import { handleDatabaseCall } from '../../common/utils';
 import { EmailService } from '../../common/email';
 import { EnvSchema } from '../../config';
-import { User } from '../../common/entities';
+
 import { UserDTOs } from './dto';
 
 @Injectable()
@@ -40,7 +41,8 @@ export class UsersService {
     );
 
     const currentlyValidVerificationCode = existingVerificationCodes?.find(
-      (verificationCode) => DateTime.fromJSDate(verificationCode.expiresAt) > DateTime.now(),
+      (verificationCode: Pick<SignUpVerificationCode, 'id' | 'userId' | 'expiresAt'>) =>
+        DateTime.fromJSDate(verificationCode.expiresAt) > DateTime.now(),
     );
 
     if (currentlyValidVerificationCode) {
