@@ -1,16 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 
 import { errorCodes, PrismaService } from '../../common/database/prisma';
 import { CipherService } from '../../common/cipher/cipher.service';
 import { SignedInUserDTO } from '../auth/dto/signed-in-user.dto';
+import { AttachmentDTOs, AttachmentResponseDTOs } from './dto';
+import { DatabaseException } from '../../common/exceptions';
 import { S3Service } from '../../common/aws/S3/s3.service';
 import { AttachmentService } from './attachment.service';
 import * as mocks from '../../common/testing/mocks';
 import * as entities from '../../common/entities';
 import { default as enums } from '../../enums';
-import { AttachmentDTOs, AttachmentResponseDTOs } from './dto';
 
 describe('attachmentsService', () => {
   const configService = mocks.createConfigService();
@@ -123,28 +125,22 @@ describe('attachmentsService', () => {
       });
       database.uploadedFile.create.mockRejectedValueOnce(mockedPrismaError);
 
-      let receivedError;
       try {
         await attachmentsService.create(files, user);
       } catch (error) {
-        receivedError = error;
+        expect(error).toBeInstanceOf(DatabaseException);
       }
-
-      expect(receivedError.name).toStrictEqual('DatabaseException');
     });
 
     it('should throw the error returned by the S3 service if any', async () => {
       database.uploadedFile.create.mockResolvedValueOnce(mockCreateUploadedFileReturn);
       s3Service.uploadS3Object.mockRejectedValueOnce(new Error('BucketNotFound'));
 
-      let receivedError;
       try {
         await attachmentsService.create(files, user);
       } catch (error) {
-        receivedError = error;
+        expect(error).not.toBeInstanceOf(DatabaseException);
       }
-
-      expect(receivedError.name).not.toStrictEqual('DatabaseException');
     });
 
     describe('Transaction Validation', () => {
@@ -190,14 +186,11 @@ describe('attachmentsService', () => {
     it('should throw a NotFoundException if no attachment is found', async () => {
       database.uploadedFile.findUnique.mockResolvedValueOnce(null);
 
-      let receivedError;
       try {
         await attachmentsService.download(attachmentId, user);
       } catch (error) {
-        receivedError = error;
+        expect(error).toBeInstanceOf(NotFoundException);
       }
-
-      expect(receivedError.name).toStrictEqual('NotFoundException');
     });
   });
 
@@ -223,14 +216,11 @@ describe('attachmentsService', () => {
     it('should throw a NotFoundException if no attachment is found', async () => {
       database.uploadedFile.findUnique.mockResolvedValueOnce(null);
 
-      let receivedError;
       try {
         await attachmentsService.delete(attachmentId, user);
       } catch (error) {
-        receivedError = error;
+        expect(error).toBeInstanceOf(NotFoundException);
       }
-
-      expect(receivedError.name).toStrictEqual('NotFoundException');
     });
 
     describe('Transaction Validation', () => {

@@ -52,9 +52,9 @@ export default class AttachmentInterceptor implements NestInterceptor {
         const parsedFilename = this.parseFilename(filename);
         const extension = this.getFileExtension(filename);
 
-        stream.on('data', (chunk) => {
+        stream.on('data', (chunk: Buffer) => {
           fileSize = fileSize.plus(chunk.length);
-          bufferChunks.push(Buffer.from(chunk));
+          bufferChunks.push(chunk);
         });
 
         stream.on('close', () => {

@@ -15,14 +15,14 @@ export default class AttachmentUploadException extends HttpException {
     super(error.message, HttpStatus.BAD_REQUEST);
 
     this.name = 'AttachmentUploadException';
-    this.type = error?.type;
+    this.type = error.type;
 
     if (error.filenames) {
       this.filenames = error.filenames;
     }
   }
 
-  getStatus(): number {
+  getStatus(): HttpStatus {
     return super.getStatus();
   }
 }

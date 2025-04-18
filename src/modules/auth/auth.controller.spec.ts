@@ -52,11 +52,14 @@ describe('AuthController', () => {
     let mockSignInReturn: Tokens;
     let credentials: AuthDTOs['signIn'];
     let requestResponse: Response;
+    let cookieFunctionSpy: jest.SpyInstance;
 
     beforeEach(() => {
       mockSignInReturn = tokenSets[0];
       credentials = { username: 'user', password: 'password' };
       requestResponse = mockedResponse.res;
+
+      cookieFunctionSpy = jest.spyOn(requestResponse, 'cookie').mockClear();
     });
 
     describe('Response Validation', () => {
@@ -75,7 +78,7 @@ describe('AuthController', () => {
 
         await controller.signIn(credentials, requestResponse);
 
-        expect(requestResponse.cookie).toHaveBeenNthCalledWith(1, 'access_token', mockSignInReturn.access_token, {
+        expect(cookieFunctionSpy).toHaveBeenNthCalledWith(1, 'access_token', mockSignInReturn.access_token, {
           httpOnly: true,
           secure: true,
           sameSite: 'strict',
@@ -87,7 +90,7 @@ describe('AuthController', () => {
 
         await controller.signIn(credentials, requestResponse);
 
-        expect(requestResponse.cookie).toHaveBeenNthCalledWith(2, 'refresh_token', mockSignInReturn.refresh_token, {
+        expect(cookieFunctionSpy).toHaveBeenNthCalledWith(2, 'refresh_token', mockSignInReturn.refresh_token, {
           httpOnly: true,
           secure: true,
           sameSite: 'strict',
@@ -101,10 +104,12 @@ describe('AuthController', () => {
     let request: Request;
     let requestResponse: Response;
     let mockRefreshTokenReturn: Tokens;
+    let cookieFunctionSpy: jest.SpyInstance;
 
     beforeEach(() => {
       mockRefreshTokenReturn = tokenSets[1];
       requestResponse = mockedResponse.res;
+      cookieFunctionSpy = jest.spyOn(requestResponse, 'cookie').mockClear();
 
       request = getMockReq({
         cookies: {
@@ -129,7 +134,7 @@ describe('AuthController', () => {
 
           await controller.refreshAccessToken(request, requestResponse);
 
-          expect(requestResponse.cookie).toHaveBeenNthCalledWith(1, 'access_token', mockRefreshTokenReturn.access_token, {
+          expect(cookieFunctionSpy).toHaveBeenNthCalledWith(1, 'access_token', mockRefreshTokenReturn.access_token, {
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
@@ -141,7 +146,7 @@ describe('AuthController', () => {
 
           await controller.refreshAccessToken(request, requestResponse);
 
-          expect(requestResponse.cookie).toHaveBeenNthCalledWith(2, 'refresh_token', mockRefreshTokenReturn.refresh_token, {
+          expect(cookieFunctionSpy).toHaveBeenNthCalledWith(2, 'refresh_token', mockRefreshTokenReturn.refresh_token, {
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
@@ -154,32 +159,34 @@ describe('AuthController', () => {
 
   describe('logout', () => {
     let requestResponse: Response;
+    let clearCookieFunctionSpy: jest.SpyInstance;
 
     beforeEach(() => {
       requestResponse = mockedResponse.res;
+      clearCookieFunctionSpy = jest.spyOn(requestResponse, 'clearCookie').mockClear();
     });
 
-    it('should return a success message', async () => {
-      const response = await controller.logout(requestResponse);
+    it('should return a success message', () => {
+      const response = controller.logout(requestResponse);
 
       expect(response).toStrictEqual({ message: 'Logged out successfully' });
     });
 
     describe('Cookies Validation', () => {
-      it('should clear the access_token cookie correctly', async () => {
-        await controller.logout(requestResponse);
+      it('should clear the access_token cookie correctly', () => {
+        controller.logout(requestResponse);
 
-        expect(requestResponse.clearCookie).toHaveBeenNthCalledWith(1, 'access_token', {
+        expect(clearCookieFunctionSpy).toHaveBeenNthCalledWith(1, 'access_token', {
           httpOnly: true,
           secure: true,
           sameSite: 'strict',
         });
       });
 
-      it('should clear the refresh_token cookie correctly', async () => {
-        await controller.logout(requestResponse);
+      it('should clear the refresh_token cookie correctly', () => {
+        controller.logout(requestResponse);
 
-        expect(requestResponse.clearCookie).toHaveBeenNthCalledWith(2, 'refresh_token', {
+        expect(clearCookieFunctionSpy).toHaveBeenNthCalledWith(2, 'refresh_token', {
           httpOnly: true,
           secure: true,
           sameSite: 'strict',

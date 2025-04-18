@@ -1,13 +1,13 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Request } from 'express';
-import { UnknownKeysParam, ZodObject, ZodRawShape } from 'zod';
+import { ZodObject, ZodRawShape } from 'zod';
 import { BadRequestException } from '../exceptions';
 
 export type SchemaContainer = {
-  params?: ZodObject<ZodRawShape, UnknownKeysParam>;
-  body?: ZodObject<ZodRawShape, UnknownKeysParam>;
-  query?: ZodObject<ZodRawShape, UnknownKeysParam>;
+  params?: ZodObject<ZodRawShape>;
+  body?: ZodObject<ZodRawShape>;
+  query?: ZodObject<ZodRawShape>;
 };
 
 @Injectable()
@@ -16,7 +16,9 @@ export default class ValidationInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<Request>();
-    const { body = {}, params, query } = request;
+    const body = (request.body ?? {}) as Record<string, unknown>;
+    const params = request.params as Record<string, unknown>;
+    const query = request.query as Record<string, unknown>;
 
     if (Object.keys(body).length && this.validationObject.body) {
       this.validateBody(body, this.validationObject.body);
@@ -34,7 +36,7 @@ export default class ValidationInterceptor implements NestInterceptor {
     return next.handle();
   }
 
-  validateParams(params: unknown, paramsSchema: ZodObject<ZodRawShape, UnknownKeysParam>) {
+  validateParams(params: unknown, paramsSchema: ZodObject<ZodRawShape>) {
     const result = paramsSchema.safeParse(params);
     if (!result.success) {
       throw new BadRequestException(result.error, 'params');
@@ -43,7 +45,7 @@ export default class ValidationInterceptor implements NestInterceptor {
     return;
   }
 
-  validateBody(body: unknown, bodySchema: ZodObject<ZodRawShape, UnknownKeysParam>) {
+  validateBody(body: unknown, bodySchema: ZodObject<ZodRawShape>) {
     const result = bodySchema.safeParse(body);
 
     if (!result.success) {
@@ -53,7 +55,7 @@ export default class ValidationInterceptor implements NestInterceptor {
     return;
   }
 
-  validateQuery(query: unknown, querySchema: ZodObject<ZodRawShape, UnknownKeysParam>) {
+  validateQuery(query: unknown, querySchema: ZodObject<ZodRawShape>) {
     const result = querySchema.safeParse(query);
     if (!result.success) {
       throw new BadRequestException(result.error, 'query');

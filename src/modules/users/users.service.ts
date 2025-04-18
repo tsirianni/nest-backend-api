@@ -14,10 +14,10 @@ import {
 } from '../../common/exceptions';
 import { errorCodes, PrismaService } from '../../common/database/prisma/';
 import { CipherService } from '../../common/cipher/cipher.service';
-import { handleDatabaseCall } from '../../common/utils';
+import { getErrorMessage, handleDatabaseCall } from '../../common/utils';
 import { EmailService } from '../../common/email';
 import { EnvSchema } from '../../config';
-import { User } from '../../common/entities';
+import { Account, User } from '../../common/entities';
 import { UserDTOs } from './dto';
 
 @Injectable()
@@ -60,14 +60,14 @@ export class UsersService {
     await this.database.$transaction(
       async (PrismaClient) => {
         if (!userId) {
-          const account = await handleDatabaseCall(PrismaClient.account.create({}));
+          const account = (await handleDatabaseCall(PrismaClient.account.create({}))) as Account;
 
           const newUser = await handleDatabaseCall(
             PrismaClient.user.create({
               data: {
                 name: user.name,
                 email: user.email,
-                accountId: account!.id,
+                accountId: account.id,
                 password: hashedPassword,
               },
             }),
@@ -85,7 +85,9 @@ export class UsersService {
           if (newUser) {
             userId = newUser.id;
           }
-        } else {
+        }
+
+        if (userId) {
           await handleDatabaseCall(
             PrismaClient.signUpVerificationCode.create({
               data: {
@@ -96,15 +98,15 @@ export class UsersService {
               },
             }),
           );
-        }
 
-        try {
-          await this.emailService.sendMail(user.email, 'SIGN_UP_CODE', {
-            name: user.name,
-            verificationCode: signUpVerificationCode,
-          });
-        } catch (error) {
-          throw new BaseException(error.message);
+          try {
+            await this.emailService.sendMail(user.email, 'SIGN_UP_CODE', {
+              name: user.name,
+              verificationCode: signUpVerificationCode,
+            });
+          } catch (error) {
+            throw new BaseException(getErrorMessage(error));
+          }
         }
       },
       {

@@ -138,9 +138,7 @@ describe('AttachmentsController', () => {
     it('should return the response from "attachmentService.delete"', async () => {
       attachmentService.delete.mockResolvedValueOnce();
 
-      const response = await controller.delete(request, request.params as AttachmentDTOs['delete']);
-
-      expect(response).toBeUndefined();
+      await expect(controller.delete(request, request.params as AttachmentDTOs['delete'])).resolves.toBeUndefined();
     });
   });
 });

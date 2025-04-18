@@ -1,5 +1,7 @@
-jest.mock('bcrypt');
+const mockedBcrypt = { hash: jest.fn(), compare: jest.fn() };
+jest.mock('bcrypt', () => mockedBcrypt);
 
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { Account, Prisma } from '@prisma/client';
@@ -7,7 +9,7 @@ import { DateTime } from 'luxon';
 
 import { errorCodes, PrismaService } from '../../common/database/prisma';
 import { CipherService } from '../../common/cipher/cipher.service';
-import { errorTypes } from '../../common/exceptions';
+import { DatabaseException, errorTypes, UnprocessableEntityException } from '../../common/exceptions';
 import * as mocks from '../../common/testing/mocks';
 import * as entities from '../../common/entities';
 import { EmailService } from '../../common/email';
@@ -20,7 +22,6 @@ describe('usersService', () => {
   let configService: ReturnType<typeof mocks.createConfigService>;
   let emailService: mocks.MockEmailService;
   let database: typeof mocks.prismaMock;
-  const mockedBcrypt = mocks.createBcryptMock();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -103,18 +104,18 @@ describe('usersService', () => {
         mockFindManyVerificationCodesReturn as entities.SignUpVerificationCode[],
       );
 
-      let receivedError;
       try {
         await usersService.create(payload);
       } catch (error) {
-        receivedError = error;
-      }
+        expect(error).toBeInstanceOf(UnprocessableEntityException);
 
-      expect(receivedError.name).toBe('UnprocessableEntityException');
-      expect(receivedError.message).toStrictEqual(
-        'There is still a non-expired sign-up code attached to this email. Please verify your account with it',
-      );
-      expect(receivedError.type).toStrictEqual(errorTypes.USERS.CREATE.SIGN_UP_VALIDATION_CODE_STILL_ACTIVE);
+        const receivedError = error as UnprocessableEntityException;
+        expect(receivedError.name).toBe('UnprocessableEntityException');
+        expect(receivedError.message).toStrictEqual(
+          'There is still a non-expired sign-up code attached to this email. Please verify your account with it',
+        );
+        expect(receivedError.type).toStrictEqual(errorTypes.USERS.CREATE.SIGN_UP_VALIDATION_CODE_STILL_ACTIVE);
+      }
     });
 
     it('should throw a ConflictException if there is already a user registered with the provided email address', async () => {
@@ -128,15 +129,15 @@ describe('usersService', () => {
       });
       database.user.create.mockRejectedValueOnce(mockedPrismaError);
 
-      let receivedError;
       try {
         await usersService.create(payload);
       } catch (error) {
-        receivedError = error;
-      }
+        expect(error).toBeInstanceOf(ConflictException);
 
-      expect(receivedError.name).toStrictEqual('ConflictException');
-      expect(receivedError.message).toStrictEqual('There is already an user registered with the provided email address');
+        const receivedError = error as ConflictException;
+        expect(receivedError.name).toStrictEqual('ConflictException');
+        expect(receivedError.message).toStrictEqual('There is already an user registered with the provided email address');
+      }
     });
 
     it('should throw a DatabaseException if a different error occurs when creating the user', async () => {
@@ -150,15 +151,14 @@ describe('usersService', () => {
       });
       database.user.create.mockRejectedValueOnce(mockedPrismaError);
 
-      let receivedError;
       try {
         await usersService.create(payload);
       } catch (error) {
-        receivedError = error;
-      }
+        expect(error).toBeInstanceOf(DatabaseException);
 
-      expect(receivedError.name).toStrictEqual('DatabaseException');
-      expect(receivedError.message).toStrictEqual(mockedPrismaError.message);
+        const receivedError = error as DatabaseException;
+        expect(receivedError.message).toStrictEqual(mockedPrismaError.message);
+      }
     });
 
     it('should attempt to send the sign-up code to the provided email address', async () => {
@@ -173,7 +173,7 @@ describe('usersService', () => {
       expect(emailService.sendMail).toHaveBeenCalled();
       expect(emailService.sendMail).toHaveBeenCalledWith(payload.email, 'SIGN_UP_CODE', {
         name: payload.name,
-        verificationCode: expect.any(Number),
+        verificationCode: expect.any(Number) as number,
       });
     });
 
@@ -220,16 +220,16 @@ describe('usersService', () => {
     it('should throw an UnprocessableEntityError if no verification code is found', async () => {
       database.signUpVerificationCode.findFirst.mockResolvedValueOnce(null);
 
-      let receivedError;
       try {
         await usersService.validateSignUp(payload);
       } catch (error) {
-        receivedError = error;
-      }
+        expect(error).toBeInstanceOf(UnprocessableEntityException);
 
-      expect(receivedError.name).toStrictEqual('UnprocessableEntityException');
-      expect(receivedError.message).toStrictEqual('The provided verification code is either invalid or expired');
-      expect(receivedError.type).toStrictEqual(errorTypes.USERS.SIGN_UP_VALIDATION_CODE.CODE_INVALID_OR_EXPIRED);
+        const receivedError = error as UnprocessableEntityException;
+        expect(receivedError.name).toStrictEqual('UnprocessableEntityException');
+        expect(receivedError.message).toStrictEqual('The provided verification code is either invalid or expired');
+        expect(receivedError.type).toStrictEqual(errorTypes.USERS.SIGN_UP_VALIDATION_CODE.CODE_INVALID_OR_EXPIRED);
+      }
     });
 
     it('should attempt to update the user to mark it as verified', async () => {
@@ -238,7 +238,7 @@ describe('usersService', () => {
 
       await usersService.validateSignUp(payload);
 
-      expect(database.user.update).toHaveBeenCalledWith({
+      expect(database.user.update.mock.calls[0]).toContainEqual({
         data: { verified: true },
         where: { id: mockSignUpVerificationCodeFindFirstReturn.userId },
       });
@@ -250,7 +250,7 @@ describe('usersService', () => {
 
       await usersService.validateSignUp(payload);
 
-      expect(database.signUpVerificationCode.deleteMany).toHaveBeenCalledWith({
+      expect(database.signUpVerificationCode.deleteMany.mock.calls[0]).toContainEqual({
         where: { email: payload.email },
       });
     });
@@ -303,14 +303,11 @@ describe('usersService', () => {
     it('should throw a NotFondException if no user is found', async () => {
       database.user.findUnique.mockResolvedValueOnce(null);
 
-      let receivedError;
       try {
         await usersService.findOneById(payload);
       } catch (error) {
-        receivedError = error;
+        expect(error).toBeInstanceOf(NotFoundException);
       }
-
-      expect(receivedError.name).toStrictEqual('NotFoundException');
     });
 
     it('should return the user properly formatted', async () => {

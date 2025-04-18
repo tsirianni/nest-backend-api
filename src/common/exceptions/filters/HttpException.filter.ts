@@ -25,7 +25,7 @@ export default class HttpExceptionFilter implements ExceptionFilter {
 
   formatException(exception: HttpException | DatabaseException, ctx: HttpArgumentsHost) {
     const response = ctx.getResponse<Response>();
-    const status = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
+    const status: HttpStatus = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
 
     // Log and return error
     if (
@@ -44,7 +44,7 @@ export default class HttpExceptionFilter implements ExceptionFilter {
         timestamp: new Date().toISOString(),
       };
 
-      if (exception.message && status !== HttpStatus.INTERNAL_SERVER_ERROR) {
+      if (exception.message) {
         formattedException.message = exception.message;
       }
 
