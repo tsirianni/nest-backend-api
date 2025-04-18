@@ -42,4 +42,8 @@ export default class BadRequestException extends HttpException {
       });
     }
   }
+
+  getStatus(): HttpStatus {
+    return super.getStatus();
+  }
 }

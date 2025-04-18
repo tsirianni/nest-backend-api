@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -10,6 +10,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AuthController } from './modules/auth/auth.controller';
 import { AttachmentModule } from './modules/attachment/attachment.module';
 
+const logger = new Logger('AppModule');
+
 @Module({
   controllers: [AppController, AuthController],
   providers: [AppService],
@@ -19,11 +21,12 @@ import { AttachmentModule } from './modules/attachment/attachment.module';
       validate: (env) => {
         const response = envSchema.safeParse(env);
         if (!response.success) {
-          throw new Error(
-            `Application could not be started, missing environment variables or variable has incorrect values: ${response.error}`,
+          logger.error(
+            `Application could not be started, environment variables are either missing or have incorrect values`,
+            response.error.errors,
           );
+          process.exit(1);
         }
-
         return env;
       },
     }),

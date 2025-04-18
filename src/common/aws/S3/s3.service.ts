@@ -28,7 +28,7 @@ export class S3Service {
 
       await s3Upload.done();
     } catch (error) {
-      throw new AmazonS3Exception(error);
+      throw new AmazonS3Exception(error as Record<string, unknown>);
     }
   }
 
@@ -51,7 +51,7 @@ export class S3Service {
 
       url = await getSignedUrl(s3Client, command, { expiresIn: 60000 }); // 60s
     } catch (error) {
-      throw new AmazonS3Exception(error);
+      throw new AmazonS3Exception(error as Record<string, unknown>);
     }
 
     return { url };
@@ -67,7 +67,7 @@ export class S3Service {
 
       await s3Client.send(command);
     } catch (error) {
-      throw new AmazonS3Exception(error);
+      throw new AmazonS3Exception(error as Record<string, unknown>);
     }
   }
 

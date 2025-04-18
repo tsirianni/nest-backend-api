@@ -29,12 +29,8 @@ export default class JwtStrategy extends PassportStrategy(Strategy) {
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => {
-          if (req.cookies && 'access_token' in req.cookies && req.cookies.access_token.length > 0) {
-            return req.cookies.access_token || null;
-          }
-
-          throw new UnauthorizedException();
+        (req: Request): string | null => {
+          return req.cookies.access_token as string | null;
         },
       ]),
       secretOrKey: Buffer.from(publicKey, 'base64'),

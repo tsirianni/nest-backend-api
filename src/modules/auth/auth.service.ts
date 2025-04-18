@@ -65,12 +65,12 @@ export class AuthService {
   }
 
   async refreshToken(request: Request): Promise<Tokens> {
-    const refreshToken = request.cookies['refresh_token'];
+    const refreshToken = request.cookies['refresh_token'] as string;
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
     }
 
-    const { sub } = await this.jwt.verifyAsync(refreshToken, {
+    const { sub }: { sub: string } = await this.jwt.verifyAsync(refreshToken, {
       algorithms: ['RS256'],
     });
 

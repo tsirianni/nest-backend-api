@@ -7,9 +7,8 @@ import { validate as isValidUUid } from 'uuid';
 export default class DecryptUUIDPipe implements PipeTransform {
   constructor(private readonly cipher: CipherService) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  transform(data: any): any {
-    const decrypted = this.cipher.decryptUUID(data.id);
+  transform(data: Record<string, unknown>): Record<string, unknown> {
+    const decrypted = this.cipher.decryptUUID(data.id as string);
 
     if (!decrypted || !isValidUUid(decrypted)) {
       throw new BadRequestException('Invalid ID', 'params');

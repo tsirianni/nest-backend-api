@@ -1,9 +1,8 @@
-import { HttpStatus } from '@nestjs/common';
 import * as http from 'http';
 
 import { default as AttachmentInterceptor } from './attachment.interceptor';
 import { default as enums } from '../../enums';
-import { errorTypes } from '../exceptions';
+import { AttachmentUploadException, errorTypes } from '../exceptions';
 import * as mocks from '../testing/mocks';
 
 const createMockedRequest = (fileName: string, mimetype: string, contentType: string) => {
@@ -49,10 +48,10 @@ describe('Attachment Interceptor', () => {
       expect(request.body).toStrictEqual({
         files: [
           {
-            buffer: expect.any(Buffer),
+            buffer: expect.any(Buffer) as Buffer,
             mimeType: enums.FILE_MIMETYPE.PDF,
             extension: enums.FILE_EXTENSION.PDF,
-            size: expect.any(Number),
+            size: expect.any(Number) as number,
             originalName: filename,
             parsedFilename: 'd.u.m.m.y.pdf',
           },
@@ -68,17 +67,15 @@ describe('Attachment Interceptor', () => {
       const executionContext = mocks.createExecutionContext(request, response);
       const callHandler = mocks.createCallHandler({});
 
-      let receivedError;
       try {
         await interceptor.intercept(executionContext, callHandler);
       } catch (error) {
-        receivedError = error;
-      }
+        expect(error).toBeInstanceOf(AttachmentUploadException);
 
-      expect(receivedError.status).toStrictEqual(HttpStatus.BAD_REQUEST);
-      expect(receivedError.message).toStrictEqual('Invalid content-type');
-      expect(receivedError.name).toStrictEqual('AttachmentUploadException');
-      expect(receivedError.type).toStrictEqual(errorTypes.ATTACHMENTS.CREATE.INVALID_CONTENT_TYPE);
+        const receivedError = error as AttachmentUploadException;
+        expect(receivedError.message).toStrictEqual('Invalid content-type');
+        expect(receivedError.type).toStrictEqual(errorTypes.ATTACHMENTS.CREATE.INVALID_CONTENT_TYPE);
+      }
     });
 
     it('should throw an AttachmentUploadException if the file size exceeds the pre-defined allowed limit', async () => {
@@ -88,18 +85,16 @@ describe('Attachment Interceptor', () => {
       const executionContext = mocks.createExecutionContext(request, response);
       const callHandler = mocks.createCallHandler({});
 
-      let receivedError;
       try {
         await interceptor.intercept(executionContext, callHandler);
       } catch (error) {
-        receivedError = error;
-      }
+        expect(error).toBeInstanceOf(AttachmentUploadException);
 
-      expect(receivedError.filenames).toContain(fileName);
-      expect(receivedError.status).toStrictEqual(HttpStatus.BAD_REQUEST);
-      expect(receivedError.name).toStrictEqual('AttachmentUploadException');
-      expect(receivedError.type).toStrictEqual(errorTypes.ATTACHMENTS.CREATE.FILE_SIZE_LIMIT_EXCEEDED);
-      expect(receivedError.message).toStrictEqual('One or more files have exceeded the allowed file size limit');
+        const receivedError = error as AttachmentUploadException;
+        expect(receivedError.filenames).toContain(fileName);
+        expect(receivedError.type).toStrictEqual(errorTypes.ATTACHMENTS.CREATE.FILE_SIZE_LIMIT_EXCEEDED);
+        expect(receivedError.message).toStrictEqual('One or more files have exceeded the allowed file size limit');
+      }
     });
   });
 });

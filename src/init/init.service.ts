@@ -17,9 +17,15 @@ export class InitService {
       this.logger.log('Initializing application');
       await this.connectToDatabase();
 
-      this.events.emitEvent('ready', this.logger);
+      this.events.emit('ready', this.logger);
     } catch (error) {
-      this.logger.error(`Initialization failed: ${error.message}`, error.stack, `code: ${error?.code || error?.statusCode}`);
+      const errorDetails = structuredClone(error) as { message: string; stack: string; code?: number; statusCode?: number };
+
+      this.logger.error(
+        `Initialization failed: ${errorDetails.message}`,
+        errorDetails.stack,
+        `code: ${String(errorDetails.code || errorDetails.statusCode)}`,
+      );
       process.exit(1);
     }
   }

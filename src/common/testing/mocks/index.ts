@@ -6,7 +6,6 @@ export { MockAuthService, default as createAuthService } from './auth-service';
 export { MockCipherService, default as createCipherService } from './cipher-service';
 export { MockEmailService, default as createEmailService } from './email-service';
 export { default as prismaMock } from './prisma/prisma-service';
-export { default as createBcryptMock } from './bcrypt';
 export { MockAttachmentService, default as createAttachmentService } from './attachment-service';
 export { MockS3Service, default as createS3Service } from './s3-service';
 export { default as createExecutionContext } from './core/execution-context';

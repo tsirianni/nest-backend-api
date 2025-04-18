@@ -2,6 +2,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
+import type { CorsOptions } from 'cors';
+import { Logger } from '@nestjs/common';
 import * as passport from 'passport';
 import helmet from 'helmet';
 
@@ -25,12 +27,18 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors({
     origin: configService.get('ALLOWED_ORIGINS'),
-  });
+  } as CorsOptions);
 
-  eventService.onEvent('ready', async (logger) => {
+  eventService.on('ready', (logger: Logger) => {
     const port = configService.get('API_PORT', { infer: true });
-    await app.listen(port);
-    logger.log(`HTTP server listening on port ${port}`);
+    app
+      .listen(port)
+      .then(() => {
+        logger.log(`HTTP server listening on port ${String(port)}`);
+      })
+      .catch((error: unknown) => {
+        logger.error('Unable to start HTTP server', error);
+      });
   });
 
   // Docs
@@ -59,4 +67,4 @@ async function bootstrap() {
   await initService.init();
 }
 
-bootstrap();
+void bootstrap();

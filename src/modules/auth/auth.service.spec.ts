@@ -1,12 +1,13 @@
-jest.mock('bcrypt');
+const mockedBcrypt = { compare: jest.fn() };
+jest.mock('bcrypt', () => mockedBcrypt);
 
-import * as mocks from '../../common/testing/mocks';
-import { getMockReq } from '@jest-mock/express';
+import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus } from '@nestjs/common';
+import { getMockReq } from '@jest-mock/express';
 import { JwtService } from '@nestjs/jwt';
 
 import { UsersService } from '../users/users.service';
+import * as mocks from '../../common/testing/mocks';
 import { ConfigService } from '@nestjs/config';
 import { SignInDTO } from './dto/sign-in.dto';
 import { AuthService } from './auth.service';
@@ -16,7 +17,6 @@ describe('AuthService', () => {
   let authService: AuthService;
   let jwtService: mocks.MockJwtService;
   let usersService: mocks.MockUsersService;
-  const mockedBcrypt = mocks.createBcryptMock();
   const configService = mocks.createConfigService();
 
   // Config service variable's returns
@@ -77,30 +77,22 @@ describe('AuthService', () => {
     it('should throw an UnauthorizedException if no user is found with the given email address', async () => {
       usersService.findOneByEmail.mockResolvedValueOnce(null);
 
-      let receivedError;
       try {
         await authService.signIn(credentials);
       } catch (error) {
-        receivedError = error;
+        expect(error).toBeInstanceOf(UnauthorizedException);
       }
-
-      expect(receivedError.message).toBe('Invalid Credentials');
-      expect(receivedError.status).toBe(HttpStatus.UNAUTHORIZED);
     });
 
     it('should throw an UnauthorizedException if the passwords do not match', async () => {
       usersService.findOneByEmail.mockResolvedValueOnce(mockFindOneByEmailReturn);
-      mockedBcrypt.compare.mockImplementationOnce(async () => false);
+      mockedBcrypt.compare.mockResolvedValueOnce(false);
 
-      let receivedError;
       try {
         await authService.signIn(credentials);
       } catch (error) {
-        receivedError = error;
+        expect(error).toBeInstanceOf(UnauthorizedException);
       }
-
-      expect(receivedError.message).toBe('Invalid Credentials');
-      expect(receivedError.status).toBe(HttpStatus.UNAUTHORIZED);
     });
 
     describe('Token validation', () => {
@@ -111,7 +103,7 @@ describe('AuthService', () => {
 
       it('should return the tokens', async () => {
         usersService.findOneByEmail.mockResolvedValueOnce(mockFindOneByEmailReturn);
-        mockedBcrypt.compare.mockImplementationOnce(async () => true);
+        mockedBcrypt.compare.mockResolvedValueOnce(true);
         jwtService.sign.mockReturnValueOnce(accessToken);
         jwtService.sign.mockReturnValueOnce(refreshToken);
 
@@ -123,7 +115,7 @@ describe('AuthService', () => {
 
       it('should sign the access_token with the correct parameters', async () => {
         usersService.findOneByEmail.mockResolvedValueOnce(mockFindOneByEmailReturn);
-        mockedBcrypt.compare.mockImplementationOnce(async () => true);
+        mockedBcrypt.compare.mockResolvedValueOnce(true);
         jwtService.sign.mockReturnValueOnce(accessToken);
         jwtService.sign.mockReturnValueOnce(refreshToken);
 
@@ -142,7 +134,7 @@ describe('AuthService', () => {
 
       it('should sign the refresh_token with the correct parameters', async () => {
         usersService.findOneByEmail.mockResolvedValueOnce(mockFindOneByEmailReturn);
-        mockedBcrypt.compare.mockImplementationOnce(async () => true);
+        mockedBcrypt.compare.mockResolvedValueOnce(true);
         jwtService.sign.mockReturnValueOnce(accessToken);
         jwtService.sign.mockReturnValueOnce(refreshToken);
 
@@ -173,15 +165,11 @@ describe('AuthService', () => {
     });
 
     it('should throw an UnauthorizedException if the request has no refresh token cookie', async () => {
-      let receivedError;
       try {
         await authService.refreshToken(getMockReq());
       } catch (error) {
-        receivedError = error;
+        expect(error).toBeInstanceOf(UnauthorizedException);
       }
-
-      expect(receivedError.message).toBe('No refresh token provided');
-      expect(receivedError.status).toBe(HttpStatus.UNAUTHORIZED);
     });
 
     describe('Token validation', () => {

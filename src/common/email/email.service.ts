@@ -3,13 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import assembleTemplate from './assemble-template';
 import { EnvSchema } from 'src/config';
-import { AllTypes, TypeToTemplateArgsMap } from './templates/enums';
+import { AllEmailTypes, TypeToTemplateArgsMap } from './templates/enums';
 
 @Injectable()
 export default class EmailService {
   constructor(private config: ConfigService<EnvSchema, true>) {}
 
-  async sendMail<T extends AllTypes>(to: string, type: T, templateArgs: TypeToTemplateArgsMap[T]): Promise<void> {
+  async sendMail<T extends AllEmailTypes>(to: string, type: T, templateArgs: TypeToTemplateArgsMap[T]): Promise<void> {
     const transporter = this.getTransporter();
     const { html, subject } = assembleTemplate(type, templateArgs);
 

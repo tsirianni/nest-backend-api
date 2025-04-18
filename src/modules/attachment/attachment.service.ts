@@ -29,15 +29,15 @@ export class AttachmentService {
   async create(files: AttachmentDTOs['create']['files'], user: SignedInUserDTO): Promise<AttachmentResponseDTOs['create'][]> {
     const promises = files.map(async (file): Promise<AttachmentResponseDTOs['create']> => {
       const key = randomUUID();
-      let uploadedFile;
+      const id = randomUUID();
 
       try {
-        uploadedFile = await this.database.$transaction(
+        await this.database.$transaction(
           async (prismaClient) => {
             const uploadRecord = await handleDatabaseCall(
               prismaClient.uploadedFile.create({
                 data: {
-                  id: randomUUID(),
+                  id,
                   key,
                   owner: user.accountId,
                   name: file.parsedFilename,
@@ -60,7 +60,7 @@ export class AttachmentService {
         else throw error;
       }
 
-      return { id: this.cipherService.encryptUUID(uploadedFile!.id), key: this.cipherService.encryptUUID(key) };
+      return { id: this.cipherService.encryptUUID(id), key: this.cipherService.encryptUUID(key) };
     });
 
     const results = await Promise.allSettled(promises);
@@ -109,7 +109,7 @@ export class AttachmentService {
     }
 
     try {
-      await this.database.$transaction<void>(
+      await this.database.$transaction(
         async (prismaClient) => {
           await prismaClient.uploadedFile.delete({
             where: { id: attachmentId, owner: user.accountId },

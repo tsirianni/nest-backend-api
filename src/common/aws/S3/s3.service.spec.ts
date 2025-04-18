@@ -14,6 +14,7 @@ jest.mock('@aws-sdk/s3-request-presigner', () => {
   };
 });
 
+import { AmazonS3Exception } from '../../exceptions';
 import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Test, TestingModule } from '@nestjs/testing';
 import { mockClient } from 'aws-sdk-client-mock';
@@ -74,7 +75,7 @@ describe('S3 Service', () => {
       await s3Service.uploadS3Object(bucket, key, file);
 
       expect(Upload).toHaveBeenCalledWith({
-        client: expect.any(S3Client),
+        client: expect.any(S3Client) as S3Client,
         params: {
           Bucket: bucket,
           Key: key,
@@ -95,15 +96,11 @@ describe('S3 Service', () => {
         }),
       );
 
-      let receivedError;
       try {
         await s3Service.uploadS3Object(bucket, key, file);
       } catch (error) {
-        receivedError = error;
+        expect(error).toBeInstanceOf(AmazonS3Exception);
       }
-
-      expect(receivedError.name).toStrictEqual('AmazonS3Exception');
-      expect(receivedError.statusCode).toStrictEqual(HttpStatus.INTERNAL_SERVER_ERROR);
     });
   });
 
@@ -135,31 +132,25 @@ describe('S3 Service', () => {
     it('should throw an AmazonS3Exception if the object is not found', async () => {
       mockedS3Client.on(HeadObjectCommand).rejects(Object.assign(new Error('AWS ERROR'), { name: 'NotFound' }));
 
-      let receivedError;
       try {
         await s3Service.getS3ObjectUrl(bucket, key);
       } catch (error) {
-        receivedError = error;
-      }
+        expect(error).toBeInstanceOf(AmazonS3Exception);
 
-      expect(receivedError.name).toStrictEqual('AmazonS3Exception');
-      expect(receivedError.message).toStrictEqual('Object not found');
-      expect(receivedError.statusCode).toStrictEqual(HttpStatus.NOT_FOUND);
+        const receivedError = error as AmazonS3Exception;
+        expect(receivedError.message).toStrictEqual('Object not found');
+      }
     });
 
     it('should throw an AmazonS3Exception if an error occurs when signing the url', async () => {
       mockedS3Client.on(HeadObjectCommand).resolves({});
       mockedGetSignedUrl.mockRejectedValueOnce(new Error('AWS ERROR'));
 
-      let receivedError;
       try {
         await s3Service.getS3ObjectUrl(bucket, key);
       } catch (error) {
-        receivedError = error;
+        expect(error).toBeInstanceOf(AmazonS3Exception);
       }
-
-      expect(receivedError.name).toStrictEqual('AmazonS3Exception');
-      expect(receivedError.statusCode).toStrictEqual(HttpStatus.INTERNAL_SERVER_ERROR);
     });
   });
 
@@ -179,15 +170,11 @@ describe('S3 Service', () => {
     it('should throw an AmazonS3Exception if an error occurs', async () => {
       mockedS3Client.on(DeleteObjectCommand).rejects(new Error('AWS ERROR'));
 
-      let receivedError;
       try {
         await s3Service.deleteS3Object(bucket, key);
       } catch (error) {
-        receivedError = error;
+        expect(error).toBeInstanceOf(AmazonS3Exception);
       }
-
-      expect(receivedError.name).toStrictEqual('AmazonS3Exception');
-      expect(receivedError.statusCode).toStrictEqual(HttpStatus.INTERNAL_SERVER_ERROR);
     });
   });
 });

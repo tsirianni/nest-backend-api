@@ -9,11 +9,11 @@ import { EnvSchema } from '../../config';
 @Injectable()
 export class CipherService {
   private readonly key: Buffer;
-  private readonly algorithm;
+  private readonly algorithm: string;
 
   constructor(private config: ConfigService<EnvSchema, true>) {
     this.algorithm = config.get('UUID_CIPHER_ALGORITHM');
-    const keyHex = config.get('UUID_CIPHER_KEY');
+    const keyHex: string = config.get('UUID_CIPHER_KEY');
 
     this.key = Buffer.from(keyHex, 'hex');
   }

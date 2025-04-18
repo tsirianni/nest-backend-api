@@ -16,7 +16,7 @@ type SignUpCodeTwo = {
 
 type EmailTypes = SignUpCode | SignUpCodeTwo;
 
-export type AllTypes = EmailTypes['type'];
+export type AllEmailTypes = EmailTypes['type'];
 
 export type TypeToTemplateArgsMap = {
   [E in EmailTypes as E['type']]: E['templateArgs'];

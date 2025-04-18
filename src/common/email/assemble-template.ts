@@ -1,9 +1,9 @@
 import * as templates from './templates';
-import { AllTypes } from './templates/enums';
+import { AllEmailTypes, TypeToTemplateArgsMap } from './templates/enums';
 import { getHtmlString } from './templates/utils';
 
 export default function assembleTemplate(
-  type: AllTypes,
+  type: AllEmailTypes,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   templateArgs: any,
 ): { subject: string; html: string } {
@@ -13,7 +13,7 @@ export default function assembleTemplate(
   switch (type) {
     case 'SIGN_UP_CODE':
       subject = 'Seu código de verificação';
-      templateBody = templates.signUpCode(templateArgs);
+      templateBody = templates.signUpCode(templateArgs as TypeToTemplateArgsMap['SIGN_UP_CODE']);
       break;
 
     default:
