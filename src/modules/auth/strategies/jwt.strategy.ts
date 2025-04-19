@@ -1,10 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { z as zod } from 'zod';
 
+import { UnauthorizedException } from '../../../common/exceptions';
 import { PrismaService } from '../../../common/database/prisma/';
 import { EnvSchema } from '../../../config';
 

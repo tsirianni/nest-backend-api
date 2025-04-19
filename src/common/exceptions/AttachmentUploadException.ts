@@ -1,4 +1,5 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
+import BaseException from './Base.exception';
 
 type ErrorDetails = {
   message: string;
@@ -6,7 +7,7 @@ type ErrorDetails = {
   filenames?: string[];
 };
 
-export default class AttachmentUploadException extends HttpException {
+export default class AttachmentUploadException extends BaseException {
   name: string;
   type: string;
   filenames?: string[];
@@ -20,9 +21,5 @@ export default class AttachmentUploadException extends HttpException {
     if (error.filenames) {
       this.filenames = error.filenames;
     }
-  }
-
-  getStatus(): HttpStatus {
-    return super.getStatus();
   }
 }

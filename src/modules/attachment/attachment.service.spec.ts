@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 
@@ -7,7 +6,7 @@ import { errorCodes, PrismaService } from '../../common/database/prisma';
 import { CipherService } from '../../common/cipher/cipher.service';
 import { SignedInUserDTO } from '../auth/dto/signed-in-user.dto';
 import { AttachmentDTOs, AttachmentResponseDTOs } from './dto';
-import { DatabaseException } from '../../common/exceptions';
+import { DatabaseException, NotFoundException } from '../../common/exceptions';
 import { S3Service } from '../../common/aws/S3/s3.service';
 import { AttachmentService } from './attachment.service';
 import * as mocks from '../../common/testing/mocks';

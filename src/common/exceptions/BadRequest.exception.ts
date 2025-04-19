@@ -1,7 +1,8 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { z as zod, ZodError } from 'zod';
 import errorMessages from '../validation/error-messages';
 import errorCodes from '../validation/error-codes';
+import BaseException from './Base.exception';
 
 type ErrorLocation = 'body' | 'query' | 'params';
 
@@ -13,7 +14,7 @@ interface validationIssue {
   location?: ErrorLocation;
 }
 
-export default class BadRequestException extends HttpException {
+export default class BadRequestException extends BaseException {
   name: string;
   validationIssues: validationIssue[] = [];
 
@@ -41,9 +42,5 @@ export default class BadRequestException extends HttpException {
         this.validationIssues.push(issueObject);
       });
     }
-  }
-
-  getStatus(): HttpStatus {
-    return super.getStatus();
   }
 }

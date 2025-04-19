@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 import { S3Service } from '../../common/aws/S3/s3.service';
 import { AttachmentDTOs, AttachmentResponseDTOs } from './dto';
 import { EnvSchema } from '../../config';
-import { DatabaseException } from '../../common/exceptions';
+import { DatabaseException, NotFoundException } from '../../common/exceptions';
 import { CreateAttachmentResponseDTO } from './dto/create.response.dto';
 import { SignedInUserDTO } from '../auth/dto/signed-in-user.dto';
 import { handleDatabaseCall, isDatabaseException } from '../../common/utils';

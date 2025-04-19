@@ -12,8 +12,4 @@ export default class AmazonS3Exception extends BaseException {
 
     this.name = 'AmazonS3Exception';
   }
-
-  getStatus(): HttpStatus {
-    return super.getStatus();
-  }
 }
