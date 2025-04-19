@@ -1,5 +1,6 @@
-import { HttpStatus } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import BaseException from './Base.exception';
+import { HttpStatus } from '@nestjs/common';
 
 export type PrismaException =
   | Prisma.PrismaClientInitializationError
@@ -8,13 +9,13 @@ export type PrismaException =
   | Prisma.PrismaClientUnknownRequestError
   | Prisma.PrismaClientValidationError;
 
-export default class DatabaseException extends Error {
+export default class DatabaseException extends BaseException {
   name: string;
   code?: string;
   stack?: string;
 
   constructor(error: PrismaException) {
-    super(error.message);
+    super(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     this.name = 'DatabaseException';
     this.stack = error.stack;
 
@@ -25,9 +26,5 @@ export default class DatabaseException extends Error {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       this.code = error.errorCode;
     }
-  }
-
-  getStatus() {
-    return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 }

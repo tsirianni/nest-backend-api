@@ -58,7 +58,11 @@ async function bootstrap() {
 
   // Global Exception Handlers
   app.useGlobalFilters(
-    new exceptionFilters.HttpExceptionFilter(),
+    /*
+      The global handler has to be the first option. Nest evaluates them as "last-in, first evaluated", which goes
+      against common reasoning of specific first - generic later.
+     */
+    new exceptionFilters.GlobalExceptionFilter(),
     new exceptionFilters.BadRequestExceptionFilter(),
     new exceptionFilters.AttachmentUploadExceptionFilter(),
     new exceptionFilters.UnprocessableEntityExceptionFilter(),

@@ -1,7 +1,6 @@
 const mockedBcrypt = { hash: jest.fn(), compare: jest.fn() };
 jest.mock('bcrypt', () => mockedBcrypt);
 
-import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { Account, Prisma } from '@prisma/client';
@@ -9,7 +8,13 @@ import { DateTime } from 'luxon';
 
 import { errorCodes, PrismaService } from '../../common/database/prisma';
 import { CipherService } from '../../common/cipher/cipher.service';
-import { DatabaseException, errorTypes, UnprocessableEntityException } from '../../common/exceptions';
+import {
+  ConflictException,
+  DatabaseException,
+  errorTypes,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '../../common/exceptions';
 import * as mocks from '../../common/testing/mocks';
 import * as entities from '../../common/entities';
 import { EmailService } from '../../common/email';
@@ -135,7 +140,6 @@ describe('usersService', () => {
         expect(error).toBeInstanceOf(ConflictException);
 
         const receivedError = error as ConflictException;
-        expect(receivedError.name).toStrictEqual('ConflictException');
         expect(receivedError.message).toStrictEqual('There is already an user registered with the provided email address');
       }
     });
