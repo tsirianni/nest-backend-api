@@ -48,6 +48,7 @@ export default class GlobalExceptionFilter implements ExceptionFilter {
       errors.ConflictException.name,
       errors.NotFoundException.name,
       errors.UnprocessableEntityException.name,
+      errors.UnsupportedMediaTypeException.name,
     ];
 
     const shouldSkipLogging = errorToAvoidLogging.some((errorClass) => errorClass === exception.name);

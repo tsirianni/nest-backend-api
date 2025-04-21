@@ -2,16 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 
+import { DatabaseException, NotFoundException } from '../../common/exceptions';
 import { errorCodes, PrismaService } from '../../common/database/prisma';
 import { CipherService } from '../../common/cipher/cipher.service';
 import { SignedInUserDTO } from '../auth/dto/signed-in-user.dto';
 import { AttachmentDTOs, AttachmentResponseDTOs } from './dto';
-import { DatabaseException, NotFoundException } from '../../common/exceptions';
 import { S3Service } from '../../common/aws/S3/s3.service';
 import { AttachmentService } from './attachment.service';
 import * as mocks from '../../common/testing/mocks';
 import * as entities from '../../common/entities';
-import { default as enums } from '../../enums';
+import { FILE_MIMETYPE } from '../../enums';
 
 describe('attachmentsService', () => {
   const configService = mocks.createConfigService();
@@ -80,8 +80,8 @@ describe('attachmentsService', () => {
           originalName: 'dummy.pdf',
           size: 10000,
           buffer: Buffer.from('some file data'),
-          mimeType: enums.FILE_MIMETYPE.PDF,
-          extension: enums.FILE_MIMETYPE.PDF,
+          mimeType: FILE_MIMETYPE.PDF,
+          extension: FILE_MIMETYPE.PDF,
         },
       ];
 

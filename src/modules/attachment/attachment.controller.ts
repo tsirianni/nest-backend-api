@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 
-import { DecryptUUIDPipe, ValidationInterceptor } from '../../common/validation';
+import { AcceptContentType, DecryptUUIDPipe, ValidationInterceptor } from '../../common/validation';
 import { AttachmentInterceptor } from '../../common/attachment';
 import { AttachmentDTOs, default as schemas } from './dto';
 import { AttachmentService } from './attachment.service';
@@ -8,6 +8,7 @@ import { JWTAuthGuard } from '../auth/guards';
 import { AuthenticatedRequest } from '../auth/dto';
 import * as attachmentDocs from './docs';
 import { RouteDoc } from '../../common/docs';
+import { FILE_MIMETYPE } from '../../enums';
 
 @Controller('attachments')
 export class AttachmentController {
@@ -16,6 +17,7 @@ export class AttachmentController {
   @Post('/')
   @UseGuards(JWTAuthGuard)
   @RouteDoc(attachmentDocs.createAttachment)
+  @AcceptContentType(FILE_MIMETYPE.MULTIPART_FORM_DATA)
   @UseInterceptors(new AttachmentInterceptor({ maxFileSizeInBytes: 2 * 1024 * 1024 }), new ValidationInterceptor(schemas.create))
   @HttpCode(HttpStatus.CREATED)
   create(@Req() req: AuthenticatedRequest) {

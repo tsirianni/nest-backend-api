@@ -6,6 +6,17 @@ export const login: ApiDocumentationOptions = {
   tag: ['Auth'],
   summary: 'Endpoint to authenticate a user',
   description: 'Endpoint allows a user to authenticate and access protected resources on the application',
+  headers: [
+    {
+      name: 'Content-Type',
+      description: 'The content type of the request body',
+      required: true,
+      schema: {
+        type: 'string',
+        example: 'application/json',
+      },
+    },
+  ],
   requestBody: {
     schema: {
       type: 'object',
@@ -51,7 +62,9 @@ export const login: ApiDocumentationOptions = {
       },
     },
     { ...errorTemplates[HttpStatus.UNAUTHORIZED] },
-    { ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR] },
+    {
+      ...errorTemplates[HttpStatus.UNSUPPORTED_MEDIA_TYPE],
+    },
   ],
 };
 
@@ -59,6 +72,17 @@ export const refresh: ApiDocumentationOptions = {
   tag: ['Auth'],
   summary: 'Endpoint to refresh tokens',
   description: 'Endpoint allows a user to get new tokens once the access_token has expired',
+  headers: [
+    {
+      name: 'Content-Type',
+      description: 'The content type of the request body',
+      required: true,
+      schema: {
+        type: 'string',
+        example: 'application/json',
+      },
+    },
+  ],
   auth: {
     cookie: true,
   },
@@ -91,7 +115,9 @@ export const refresh: ApiDocumentationOptions = {
       },
     },
     { ...errorTemplates[HttpStatus.UNAUTHORIZED] },
-    { ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR] },
+    {
+      ...errorTemplates[HttpStatus.UNSUPPORTED_MEDIA_TYPE],
+    },
   ],
 };
 
@@ -99,6 +125,17 @@ export const logout: ApiDocumentationOptions = {
   tag: ['Auth'],
   summary: 'Endpoint to clear tokens',
   description: 'Endpoint to clear tokens, effectively logging the user out',
+  headers: [
+    {
+      name: 'Content-Type',
+      description: 'The content type of the request body',
+      required: true,
+      schema: {
+        type: 'string',
+        example: 'application/json',
+      },
+    },
+  ],
   responses: [
     {
       status: HttpStatus.OK,
@@ -113,6 +150,8 @@ export const logout: ApiDocumentationOptions = {
         },
       },
     },
-    { ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR] },
+    {
+      ...errorTemplates[HttpStatus.UNSUPPORTED_MEDIA_TYPE],
+    },
   ],
 };

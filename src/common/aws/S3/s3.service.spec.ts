@@ -23,7 +23,7 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { HttpStatus } from '@nestjs/common';
 
 import type { Attachment } from '../../attachment/attachment.interceptor';
-import { default as enums } from '../../../enums';
+import { FILE_EXTENSION, FILE_MIMETYPE } from '../../../enums';
 import * as mocks from '../../testing/mocks';
 import { S3Service } from './s3.service';
 
@@ -62,8 +62,8 @@ describe('S3 Service', () => {
 
     beforeEach(() => {
       file = {
-        mimeType: enums.FILE_MIMETYPE.PDF,
-        extension: enums.FILE_EXTENSION.PDF,
+        mimeType: FILE_MIMETYPE.PDF,
+        extension: FILE_EXTENSION.PDF,
         originalName: 'dummy.pdf',
         parsedFilename: 'dummy.pdf',
         size: 10000,

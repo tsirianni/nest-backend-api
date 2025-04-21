@@ -1,8 +1,8 @@
 import * as http from 'http';
 
 import { default as AttachmentInterceptor } from './attachment.interceptor';
-import { default as enums } from '../../enums';
 import { AttachmentUploadException, errorTypes } from '../exceptions';
+import { FILE_EXTENSION, FILE_MIMETYPE } from '../../enums';
 import * as mocks from '../testing/mocks';
 
 const createMockedRequest = (fileName: string, mimetype: string, contentType: string) => {
@@ -38,7 +38,7 @@ describe('Attachment Interceptor', () => {
     it('should fill req.body with the processed files', async () => {
       const filename = '  d,u,m,m,y.pdf';
       const interceptor = new AttachmentInterceptor({ maxFileSizeInBytes: 2048 });
-      const { request, response } = createMockedRequest(filename, enums.FILE_MIMETYPE.PDF, 'multipart/form-data');
+      const { request, response } = createMockedRequest(filename, FILE_MIMETYPE.PDF, FILE_MIMETYPE.MULTIPART_FORM_DATA);
       const executionContext = mocks.createExecutionContext(request, response);
       const callHandler = mocks.createCallHandler({});
 
@@ -49,8 +49,8 @@ describe('Attachment Interceptor', () => {
         files: [
           {
             buffer: expect.any(Buffer) as Buffer,
-            mimeType: enums.FILE_MIMETYPE.PDF,
-            extension: enums.FILE_EXTENSION.PDF,
+            mimeType: FILE_MIMETYPE.PDF,
+            extension: FILE_EXTENSION.PDF,
             size: expect.any(Number) as number,
             originalName: filename,
             parsedFilename: 'd.u.m.m.y.pdf',
@@ -63,7 +63,7 @@ describe('Attachment Interceptor', () => {
   describe('Error Validation', () => {
     it('should throw an AttachmentUploadException if the content-type is not "multipart/form-data"', async () => {
       const interceptor = new AttachmentInterceptor({ maxFileSizeInBytes: 2048 });
-      const { request, response } = createMockedRequest('data.json', enums.FILE_MIMETYPE.JSON, enums.FILE_MIMETYPE.JSON);
+      const { request, response } = createMockedRequest('data.json', FILE_MIMETYPE.JSON, FILE_MIMETYPE.JSON);
       const executionContext = mocks.createExecutionContext(request, response);
       const callHandler = mocks.createCallHandler({});
 
@@ -81,7 +81,7 @@ describe('Attachment Interceptor', () => {
     it('should throw an AttachmentUploadException if the file size exceeds the pre-defined allowed limit', async () => {
       const fileName = 'dummy.pdf';
       const interceptor = new AttachmentInterceptor({ maxFileSizeInBytes: 10 });
-      const { request, response } = createMockedRequest(fileName, enums.FILE_MIMETYPE.PDF, 'multipart/form-data');
+      const { request, response } = createMockedRequest(fileName, FILE_MIMETYPE.PDF, FILE_MIMETYPE.MULTIPART_FORM_DATA);
       const executionContext = mocks.createExecutionContext(request, response);
       const callHandler = mocks.createCallHandler({});
 

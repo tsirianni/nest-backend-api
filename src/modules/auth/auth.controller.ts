@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 import { ValidationInterceptor } from '../../common/validation';
 import { AuthDTOs, default as schemas } from './dto';
 import { AuthService } from './auth.service';
-import { default as enums } from '../../enums';
+import { ENVIRONMENTS } from '../../enums';
 import { RouteDoc } from '../../common/docs';
 import { EnvSchema } from '../../config';
 import * as docs from './docs';
@@ -18,7 +18,7 @@ export class AuthController {
     private authService: AuthService,
     private config: ConfigService<EnvSchema, true>,
   ) {
-    this.setSecure = this.config.get('NODE_ENV') === enums.ENVIRONMENTS.PRODUCTION;
+    this.setSecure = this.config.get('NODE_ENV') === ENVIRONMENTS.PRODUCTION;
   }
 
   @Post('/login')
