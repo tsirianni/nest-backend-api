@@ -1,3 +1,4 @@
+export { default as UnsupportedMediaTypeException } from './UnsupportedMediaTypeException';
 export { default as UnprocessableEntityException } from './UnprocessableEntity.exception';
 export { default as AttachmentUploadException } from './AttachmentUploadException';
 export { default as BadRequestException } from './BadRequest.exception';

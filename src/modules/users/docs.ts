@@ -6,6 +6,17 @@ export const signUp: ApiDocumentationOptions = {
   tag: ['Users'],
   summary: 'Signs Up a user',
   description: "Endpoint used to create a new user and send a verification code to the user's email address",
+  headers: [
+    {
+      name: 'Content-Type',
+      description: 'The content type of the request body',
+      required: true,
+      schema: {
+        type: 'string',
+        example: 'application/json',
+      },
+    },
+  ],
   requestBody: {
     schema: {
       type: 'object',
@@ -37,16 +48,16 @@ export const signUp: ApiDocumentationOptions = {
       description: 'Sign up successful',
     },
     {
-      ...errorTemplates[HttpStatus.UNPROCESSABLE_ENTITY],
-      description:
-        'Possible error codes: \n\n`users.create.sign_up_code_still_active` - Happens when the user still has an active verification code, preventing the creation of a new one.',
-    },
-    {
       ...errorTemplates[HttpStatus.CONFLICT],
       description: 'Happens when a user is already registered with the email address provided',
     },
     {
-      ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR],
+      ...errorTemplates[HttpStatus.UNSUPPORTED_MEDIA_TYPE],
+    },
+    {
+      ...errorTemplates[HttpStatus.UNPROCESSABLE_ENTITY],
+      description:
+        'Possible error codes: <br><br>`users.create.sign_up_code_still_active` - Happens when the user still has an active verification code, preventing the creation of a new one.',
     },
   ],
 };
@@ -55,6 +66,17 @@ export const validateSignUp: ApiDocumentationOptions = {
   tag: ['Users'],
   summary: "Validates a user's sign-up code",
   description: 'Endpoint used to validate a sign-up code',
+  headers: [
+    {
+      name: 'Content-Type',
+      description: 'The content type of the request body',
+      required: true,
+      schema: {
+        type: 'string',
+        example: 'application/json',
+      },
+    },
+  ],
   requestBody: {
     schema: {
       type: 'object',
@@ -77,12 +99,12 @@ export const validateSignUp: ApiDocumentationOptions = {
       description: 'Sign up validation successful',
     },
     {
-      ...errorTemplates[HttpStatus.UNPROCESSABLE_ENTITY],
-      description:
-        'Possible error codes: \n\n`users.validate_sign_up.code.invalid_or_expired` - Happens when the provided sign-up code is either invalid or has already expired',
+      ...errorTemplates[HttpStatus.UNSUPPORTED_MEDIA_TYPE],
     },
     {
-      ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR],
+      ...errorTemplates[HttpStatus.UNPROCESSABLE_ENTITY],
+      description:
+        'Possible error codes: <br><br>`users.validate_sign_up.code.invalid_or_expired` - Happens when the provided sign-up code is either invalid or has already expired',
     },
   ],
 };
@@ -130,9 +152,6 @@ export const findOne: ApiDocumentationOptions = {
     },
     {
       ...errorTemplates[HttpStatus.NOT_FOUND],
-    },
-    {
-      ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR],
     },
   ],
 };

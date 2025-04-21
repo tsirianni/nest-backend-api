@@ -1,17 +1,20 @@
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
-import { NestFactory } from '@nestjs/core';
 import type { CorsOptions } from 'cors';
-import { Logger } from '@nestjs/common';
+import { HttpStatus, Logger } from '@nestjs/common';
 import * as passport from 'passport';
 import helmet from 'helmet';
 
+import { default as ContentTypeGuard } from './common/validation/guards/content-type.guard';
 import * as exceptionFilters from './common/exceptions/filters';
 import { EventService } from './common/events/events.service';
 import { InitService } from './init/init.service';
 import { AppModule } from './app.module';
 import { EnvSchema } from './config';
+
+import { default as errorTemplates } from './common/docs/error-templates';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -52,6 +55,7 @@ async function bootstrap() {
       in: 'cookie',
       name: 'access_token',
     })
+    .addGlobalResponse(errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR])
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
@@ -67,6 +71,9 @@ async function bootstrap() {
     new exceptionFilters.AttachmentUploadExceptionFilter(),
     new exceptionFilters.UnprocessableEntityExceptionFilter(),
   );
+
+  // Global Guards
+  app.useGlobalGuards(new ContentTypeGuard(new Reflector()));
 
   await initService.init();
 }

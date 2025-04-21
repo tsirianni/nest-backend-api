@@ -160,4 +160,49 @@ export default Object.seal({
       },
     },
   },
+
+  [HttpStatus.UNSUPPORTED_MEDIA_TYPE]: {
+    status: HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+    description: 'Unsupported Media Type. The supported types will be present in the response header Accept-*.',
+    headers: {
+      'Accept-Post': {
+        description: 'Supported content types for POST requests',
+        schema: {
+          type: 'string',
+          example: 'multipart/form-data, application/json',
+        },
+      },
+      'Accept-Patch': {
+        description: 'Supported content types for PATCH requests',
+        schema: {
+          type: 'string',
+          example: 'application/json',
+        },
+      },
+      Accept: {
+        description: 'Supported content types for requests',
+        schema: {
+          type: 'string',
+          example: 'application/json',
+        },
+      },
+    },
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: {
+          type: 'number',
+          example: HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+        },
+        timestamp: {
+          type: 'Date',
+          example: '2024-08-25T15:52:11.260Z',
+        },
+        message: {
+          type: 'string',
+          example: `Unsupported Media Type. Expected: {type(s)}`,
+        },
+      },
+    },
+  },
 });

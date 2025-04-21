@@ -10,6 +10,17 @@ export const createAttachment: ApiDocumentationOptions = {
   auth: {
     cookie: true,
   },
+  headers: [
+    {
+      name: 'Content-Type',
+      description: 'The content type of the request body',
+      required: true,
+      schema: {
+        type: 'string',
+        example: 'multipart/form-data',
+      },
+    },
+  ],
   requestBody: {
     contentType: 'multipart/form-data',
     schema: {
@@ -49,13 +60,13 @@ export const createAttachment: ApiDocumentationOptions = {
       ...errorTemplates[HttpStatus.UNAUTHORIZED],
     },
     {
+      ...errorTemplates[HttpStatus.UNSUPPORTED_MEDIA_TYPE],
+    },
+    {
       ...errorTemplates[HttpStatus.UNPROCESSABLE_ENTITY],
       description:
         'Possible error types:<br><br>' +
         '`attachments.create.file_size_limit_exceeded` - Happens when one or more attachments have exceeded the file size limit',
-    },
-    {
-      ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR],
     },
   ],
 };
@@ -98,9 +109,6 @@ export const downloadAttachment: ApiDocumentationOptions = {
     {
       ...errorTemplates[HttpStatus.NOT_FOUND],
     },
-    {
-      ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR],
-    },
   ],
 };
 
@@ -131,9 +139,6 @@ export const deleteAttachment: ApiDocumentationOptions = {
     },
     {
       ...errorTemplates[HttpStatus.NOT_FOUND],
-    },
-    {
-      ...errorTemplates[HttpStatus.INTERNAL_SERVER_ERROR],
     },
   ],
 };
