@@ -1,4 +1,4 @@
-import { S3Service } from '../../aws/S3/s3.service';
+import { S3Service } from '../../../aws/S3/s3.service';
 
 type uploadS3Object = S3Service['uploadS3Object'];
 type getS3ObjectUrl = S3Service['getS3ObjectUrl'];

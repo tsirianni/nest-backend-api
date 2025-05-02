@@ -5,10 +5,11 @@ import { AttachmentController } from './attachment.controller';
 import { S3Service } from '../../common/aws/S3/s3.service';
 import { PrismaService } from '../../common/database/prisma';
 import { CipherModule } from '../../common/cipher/cipher.module';
+import { STSService } from '../../common/aws/STS/sts.service';
 
 @Module({
   controllers: [AttachmentController],
-  providers: [AttachmentService, S3Service, PrismaService],
+  providers: [AttachmentService, S3Service, STSService, PrismaService],
   exports: [AttachmentService],
   imports: [CipherModule],
 })

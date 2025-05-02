@@ -43,6 +43,7 @@ export const envSchema = zod.object({
   AWS_SECRET_ACCESS_KEY: zod.string(),
   AWS_REGION: zod.string(),
   AWS_ATTACHMENTS_BUCKET: zod.string(),
+  AWS_ROLE_ARN: zod.string(),
 });
 
 export type EnvSchema = zod.infer<typeof envSchema>;

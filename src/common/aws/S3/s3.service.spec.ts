@@ -14,11 +14,11 @@ jest.mock('@aws-sdk/s3-request-presigner', () => {
   };
 });
 
+import { STSService } from '../STS/sts.service';
 import { AmazonS3Exception } from '../../exceptions';
-import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, NoSuchKey, S3Client } from '@aws-sdk/client-s3';
 import { Test, TestingModule } from '@nestjs/testing';
 import { mockClient } from 'aws-sdk-client-mock';
-import { ConfigService } from '@nestjs/config';
 import { Upload } from '@aws-sdk/lib-storage';
 import { HttpStatus } from '@nestjs/common';
 
@@ -31,13 +31,8 @@ describe('S3 Service', () => {
   let key: string;
   let bucket: string;
   let s3Service: mocks.MockS3Service;
+  let stsService: mocks.MockSTSService;
   const mockedS3Client = mockClient(S3Client);
-  const configService = mocks.createConfigService();
-
-  // Mocks config values for constructor
-  configService.get.mockReturnValueOnce('{{region}}');
-  configService.get.mockReturnValueOnce('{{accessKeyId}}');
-  configService.get.mockReturnValueOnce('{{secretAccessKeyId}}');
 
   beforeEach(async () => {
     mockedS3Client.reset();
@@ -45,16 +40,17 @@ describe('S3 Service', () => {
     key = '{{key}}';
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        S3Service,
-        {
-          provide: ConfigService,
-          useValue: configService,
-        },
-      ],
+      providers: [S3Service, { provide: STSService, useValue: mocks.createSTSService() }],
     }).compile();
 
     s3Service = module.get<mocks.MockS3Service>(S3Service);
+    stsService = module.get<mocks.MockSTSService>(STSService);
+
+    stsService.assumeRole.mockResolvedValueOnce({
+      accessKeyId: '{accessKeyId}',
+      secretAccessKey: '{secretAccessKey}',
+      sessionToken: '{sessionToken}',
+    });
   });
 
   describe('uploadS3Object', () => {
@@ -130,7 +126,11 @@ describe('S3 Service', () => {
     });
 
     it('should throw an AmazonS3Exception if the object is not found', async () => {
-      mockedS3Client.on(HeadObjectCommand).rejects(Object.assign(new Error('AWS ERROR'), { name: 'NotFound' }));
+      const mockedError = new NoSuchKey({
+        message: 'No object has been found with the provided key',
+        $metadata: {},
+      });
+      mockedS3Client.on(HeadObjectCommand).rejects(mockedError);
 
       try {
         await s3Service.getS3ObjectUrl(bucket, key);
