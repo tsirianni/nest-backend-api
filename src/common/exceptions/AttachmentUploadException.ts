@@ -8,14 +8,12 @@ type ErrorDetails = {
 };
 
 export default class AttachmentUploadException extends BaseException {
-  name: string;
   type: string;
   filenames?: string[];
 
   constructor(error: ErrorDetails) {
     super(error.message, HttpStatus.BAD_REQUEST);
 
-    this.name = 'AttachmentUploadException';
     this.type = error.type;
 
     if (error.filenames) {

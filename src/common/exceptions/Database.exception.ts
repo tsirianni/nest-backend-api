@@ -10,13 +10,11 @@ export type PrismaException =
   | Prisma.PrismaClientValidationError;
 
 export default class DatabaseException extends BaseException {
-  name: string;
   code?: string;
   stack?: string;
 
   constructor(error: PrismaException) {
     super(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    this.name = 'DatabaseException';
     this.stack = error.stack;
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {

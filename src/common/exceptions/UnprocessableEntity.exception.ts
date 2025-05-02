@@ -7,7 +7,6 @@ type UnprocessableEntityObject = {
 };
 
 export default class UnprocessableEntityException extends BaseException {
-  public name;
   public type;
 
   constructor(error: UnprocessableEntityObject | string) {
@@ -17,7 +16,5 @@ export default class UnprocessableEntityException extends BaseException {
       super(error.message, HttpStatus.UNPROCESSABLE_ENTITY);
       this.type = error.type;
     }
-
-    this.name = 'UnprocessableEntityException';
   }
 }

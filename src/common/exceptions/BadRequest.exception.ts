@@ -15,13 +15,10 @@ interface validationIssue {
 }
 
 export default class BadRequestException extends BaseException {
-  name: string;
   validationIssues: validationIssue[] = [];
 
   constructor(error: ZodError | string, location?: ErrorLocation) {
     super(typeof error === 'string' ? error : error.message, HttpStatus.BAD_REQUEST);
-
-    this.name = 'BadRequestException';
 
     if (typeof error === 'object') {
       error.issues.forEach((issue: zod.ZodIssue) => {
