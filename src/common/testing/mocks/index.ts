@@ -7,6 +7,7 @@ export { MockCipherService, default as createCipherService } from './cipher-serv
 export { MockEmailService, default as createEmailService } from './email-service';
 export { default as prismaMock } from './prisma/prisma-service';
 export { MockAttachmentService, default as createAttachmentService } from './attachment-service';
-export { MockS3Service, default as createS3Service } from './s3-service';
+export { MockS3Service, default as createS3Service } from './AWS/s3-service';
+export { MockSTSService, default as createSTSService } from './AWS/sts-service';
 export { default as createExecutionContext } from './core/execution-context';
 export { default as createCallHandler } from './core/call-handler';
