@@ -54,7 +54,7 @@ export default class GlobalExceptionFilter implements ExceptionFilter {
     const shouldSkipLogging = errorToAvoidLogging.some((errorClass) => errorClass === exception.name);
 
     if (!shouldSkipLogging) {
-      this.logger.error(exception.message, exception.stack);
+      this.logger.error(exception);
     }
   }
 
