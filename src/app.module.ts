@@ -9,6 +9,7 @@ import { envSchema } from './config';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthController } from './modules/auth/auth.controller';
 import { AttachmentModule } from './modules/attachment/attachment.module';
+import { PrismaModule } from './common/database/prisma/prisma.module';
 
 const logger = new Logger('AppModule');
 
@@ -30,6 +31,7 @@ const logger = new Logger('AppModule');
         return env;
       },
     }),
+    PrismaModule,
     UsersModule,
     EventsModule,
     InitModule,
