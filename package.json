@@ -26,7 +26,12 @@
     "format-staged-files": "prettier --write",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "rebase:origin": "git fetch && git rebase origin/main"
+    "rebase:origin": "git fetch && git rebase origin/main",
+    "prisma:seed": "prisma db seed",
+    "prisma:unseed": "ts-node ./prisma/seeds/seed.ts unseed"
+  },
+  "prisma": {
+    "seed": "ts-node ./prisma/seeds/seed.ts seed"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.787.0",
