@@ -1,8 +1,10 @@
-import { Module } from '@nestjs/common';
-import { HttpClientService } from './http-client.service';
+import { Global, Module } from '@nestjs/common';
 
+import { HttpClientFactory } from './http-client.factory';
+
+@Global()
 @Module({
-  providers: [HttpClientService],
-  exports: [HttpClientService],
+  providers: [HttpClientFactory],
+  exports: [HttpClientFactory],
 })
 export class HttpClientModule {}
