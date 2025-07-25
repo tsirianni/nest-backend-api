@@ -196,7 +196,7 @@ import { getHtmlString } from './utils';
 export default (args: TypeToTemplateArgsMap['SIGN_UP_CODE']) => {
   let fullTemplate = getHtmlString('sign-up-code.html');
   Object.entries(args).forEach(([key, value]) => {
-    fullTemplate = fullTemplate.replace(`:${key}`, String(value));
+    fullTemplate = fullTemplate.re(`:${key}`, String(value));
   });
 
   return fullTemplate;
@@ -205,7 +205,7 @@ export default (args: TypeToTemplateArgsMap['SIGN_UP_CODE']) => {
 
 O retorno `fullTemplate` já pode ser enviado na propriedade `html` do nodemailer e o e-mail será recebido com a formatação implementada e, já que estamos usando Typescript é natural que os parâmetros necessários estejam mapeados na hora de enviar o e-mail, sendo auto-sugeridos pelo editor de texto a depender do template:
 
-{image-placeholder}
+<img width="567" height="95" alt="image" src="https://github.com/user-attachments/assets/8bd36ac8-81a6-4cad-afe1-f29b9789829a" />
 
 ## 📄 Documentação da API com Swagger utilizando decorator customizado para manter os controllers limpos
 
