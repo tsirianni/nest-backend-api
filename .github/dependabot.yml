@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/' # Look for `package.json` in the `root` directory
     schedule:
-      interval: 'daily'
+      interval: 'monthly'
     assignees:
       - 'tsirianni'
     labels:
